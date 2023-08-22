@@ -14,6 +14,8 @@ const socket = io()
 const chatContent = ref("")
 const chatList = reactive([])
 // #endregion
+// 現在時刻の取得
+const today = new Date();
 
 // #region lifecycle
 onMounted(() => {
@@ -41,7 +43,8 @@ const onPublish = () => {
   }
   else{
   socket.emit("publishEvent",{user: userName.value,
-                              message:chatContent.value})
+                              message:chatContent.value,
+                              time:`${today.getFullYear()}/${(today.getMonth() + 1)}/${today.getDate()}/${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`})
   chatContent.value = "";  // Clear the chat input
   }
 }
