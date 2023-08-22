@@ -26,11 +26,13 @@ const onEnter = () => {
   if (inputUserName.value.trim() === ''){
     alert('ユーザ名を入力してください。')
   }
+  else{
   // 入室メッセージを送信
   socket.emit('enterEvent', { user: inputUserName.value });
 
   // チャット画面へ遷移
   router.push({ name: "Chat"})
+  }
 }
 // #endregion
 </script>
