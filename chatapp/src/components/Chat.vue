@@ -65,7 +65,7 @@ const onReceivePublish = (data) => {
 const registerSocketEvent = () => {
   // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
-
+    
   })
 
   // 退室イベントを受け取ったら実行
