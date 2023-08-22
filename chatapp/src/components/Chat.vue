@@ -22,13 +22,26 @@ onMounted(() => {
 // #endregion
 
 // #region browser event handler
+
+// ユーザー名をローカルストレージから取得
+const currentUser = localStorage.getItem('username');
+
+// メッセージのスタイルを設定する関数
+const messageStyle = (messageUser) => {
+  console.log(messageUser)
+  if (messageUser === currentUser){
+  return "color: red;"
+  }
+}
+
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
   if (chatContent.value.trim() === ''){
     alert('メッセージを入力してください。')
   }
   else{
-  socket.emit("publishEvent",`${userName.value}さん${chatContent.value}`)
+  socket.emit("publishEvent",{user: userName.value,
+                              message:chatContent.value})
   chatContent.value = "";  // Clear the chat input
   }
 }
@@ -51,13 +64,12 @@ const onMemo = () => {
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  console.log("Enter")
-  chatList.push(data)
+  chatList.unshift(data)
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
 const onReceiveExit = (data) => {
-  chatList.push(data)
+  chatList.unshift(data)
 }
 
 // サーバから受信した投稿メッセージを画面上に表示する
@@ -90,6 +102,7 @@ const registerSocketEvent = () => {
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data)
+    console.log(chatList.user)
   }
   )
 }
@@ -108,7 +121,7 @@ const registerSocketEvent = () => {
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i">{{ chat }}</li>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chat.user)">{{ chat }}</li>
         </ul>
       </div>
     </div>

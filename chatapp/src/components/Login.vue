@@ -17,6 +17,9 @@ const inputUserName = ref("")
 // #endregion
 
 // #region browser event handler
+
+
+
 // 入室メッセージをクライアントに送信する
 const onEnter = () => {
   // ユーザー名が入力されているかチェック
@@ -29,6 +32,8 @@ const onEnter = () => {
 
   // 全体で使用するnameに入力されたユーザー名を格納
   userName.value = inputUserName.value;
+  // ユーザー名をローカルストレージに保存
+  localStorage.setItem('username', inputUserName.value);
 
   // チャット画面へ遷移
   router.push({ name: "Chat"})
