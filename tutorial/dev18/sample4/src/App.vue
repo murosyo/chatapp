@@ -6,7 +6,7 @@ const handleClick = () => {
 
 <template>
   <h1>Sample4</h1>
-  <button @click="handleClick">click</button>
+  <button @click="handleClick">clicktest</button>
 </template>
 
 
