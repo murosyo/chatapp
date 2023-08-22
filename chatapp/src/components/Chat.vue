@@ -41,7 +41,10 @@ const onExit = () => {
 // メモを画面上に表示する
 const onMemo = () => {
   // メモの内容を表示
+  const memo = `${userName.value}さんのメモ${chatContent.value}`
+  chatList.unshift(memo)
   // 入力欄を初期化
+  chatContent.value=""
 }
 // #endregion
 
@@ -101,7 +104,7 @@ const registerSocketEvent = () => {
       <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
       <div class="mt-5">
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
-        <button class="button-normal util-ml-8px">メモ</button>
+        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
