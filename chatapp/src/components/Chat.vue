@@ -35,7 +35,7 @@ const onPublish = () => {
 
 // 退室メッセージをサーバに送信する
 const onExit = () => {
-  socket.emit("exitEvent",userName.value)
+  socket.emit("exitEvent",`${userName.value}さんが退室`)
 }
 
 // メモを画面上に表示する
@@ -79,8 +79,7 @@ const registerSocketEvent = () => {
     if (!data) {
       return
     }
-    const ExitMessage = `${data}さんが退室`
-    onReceiveExit(ExitMessage)
+    onReceiveExit(data)
   })
 
 
