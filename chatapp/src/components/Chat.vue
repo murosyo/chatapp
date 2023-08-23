@@ -40,13 +40,21 @@ const messageStyle = (messageUser) => {
 const onPublish = () => {
   if (chatContent.value.trim() === ''){
     alert('メッセージを入力してください。')
+    return;
   }
-  else{
+  // 最後のメッセージのユーザーを取得
+  const lastMessageUser = chatList.length > 0 ? chatList[chatList.length - 1].user : null;
+  console.log(lastMessageUser)
+  // 現在のユーザーと最後のメッセージのユーザーが同じであれば、送信をブロック
+  if(userName.value === lastMessageUser){
+    alert('連続してメッセージを送信することはできません。')
+    return;
+  }
   socket.emit("publishEvent",{user: userName.value,
                               message:chatContent.value,
                               time:`${today.getFullYear()}/${(today.getMonth() + 1)}/${today.getDate()}/${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`})
   chatContent.value = "";  // Clear the chat input
-  }
+
 }
 
 // 退室メッセージをサーバに送信する
@@ -105,7 +113,6 @@ const registerSocketEvent = () => {
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data)
-    console.log(chatList.user)
   }
   )
 }
