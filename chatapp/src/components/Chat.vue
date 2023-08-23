@@ -13,6 +13,7 @@ const socket = io()
 // #region reactive variable
 const chatContent = ref("")
 const chatList = reactive([])
+const isReversed = ref(false);  // false: 通常順, true: 逆順
 // #endregion
 // 現在時刻の取得
 const today = new Date();
@@ -24,6 +25,16 @@ onMounted(() => {
 // #endregion
 
 // #region browser event handler
+// 並び替え関数
+const reverseMessages = () => {
+  chatList.reverse();
+};
+
+// 逆順の状態を切り替える関数
+const toggleOrder = () => {
+  isReversed.value = !isReversed.value;
+  reverseMessages();
+};
 
 // ユーザー名をローカルストレージから取得
 const currentUser = localStorage.getItem('username');
@@ -126,6 +137,8 @@ const registerSocketEvent = () => {
       <p>ログインユーザ：{{ userName }}さん</p>
       <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
       <div class="mt-5">
+        <!-- 並び替えボタンの追加 -->
+        <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "通常順に表示" : "逆順に表示" }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
