@@ -13,10 +13,9 @@ const socket = io()
 // #region reactive variable
 const chatContent = ref("")
 const chatList = reactive([])
-const isReversed = ref(false);  // false: 通常順, true: 逆順
+const isReversed = ref(false);  // false: 通常順, true: 逆順　メッセージを新しい順、古い順に切り替える機能のため
+const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数　１分間に一回しかメッセージを送れないようにする
 // #endregion
-// 現在時刻の取得
-const today = new Date();
 
 // #region lifecycle
 onMounted(() => {
@@ -41,7 +40,6 @@ const currentUser = localStorage.getItem('username');
 
 // メッセージのスタイルを設定する関数
 const messageStyle = (messageUser) => {
-  console.log(messageUser)
   if (messageUser === currentUser){
   return "color: red;"
   }
@@ -53,17 +51,31 @@ const onPublish = () => {
     alert('メッセージを入力してください。')
     return;
   }
-  // 最後のメッセージのユーザーを取得
-  const lastMessageUser = chatList.length > 0 ? chatList[chatList.length - 1].user : null;
-  console.log(lastMessageUser)
-  // 現在のユーザーと最後のメッセージのユーザーが同じであれば、送信をブロック
-  if(userName.value === lastMessageUser){
+  // chatListが降順のとき
+  if(isReversed.value===false){
+    // 最後のメッセージのユーザーを取得
+    const lastMessageUser = chatList.length > 0 ? chatList[chatList.length - 1].user : null;
+    if(userName.value === lastMessageUser){
     alert('連続してメッセージを送信することはできません。')
     return;
   }
+  else{
+    // 最後のメッセージのユーザーを取得
+    const lastMessageUser = chatList.length > 0 ? chatList[0].user : null;
+    if(userName.value === lastMessageUser){
+    alert('連続してメッセージを送信することはできません。')
+    return;
+      }
+    }
+  }
+
+
+  // 現在時刻の取得
+  const today = new Date();
+
   socket.emit("publishEvent",{user: userName.value,
                               message:chatContent.value,
-                              time:`${today.getFullYear()}/${(today.getMonth() + 1)}/${today.getDate()}/${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`})
+                              time:today})
   chatContent.value = "";  // Clear the chat input
 
 }
