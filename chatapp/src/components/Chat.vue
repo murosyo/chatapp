@@ -47,8 +47,8 @@ const messageStyle = (messageUser) => {
 
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-  if (chatContent.value.trim() === ''){
-    alert('メッセージを入力してください。')
+if (chatContent.value.trim() === ''){
+alert('メッセージを入力してください。')
     return;
   }
   // chatListが降順のとき
@@ -72,26 +72,34 @@ const onPublish = () => {
 
   // 現在時刻の取得
   const today = new Date();
+  const dayOfWeek = today.getDay() ;
+  const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek] ;
+  // console.log(today.getFullYear() + "/" +  (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr);
 
   socket.emit("publishEvent",{user: userName.value,
                               message:chatContent.value,
-                              time:today})
+                              time:today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()})
   chatContent.value = "";  // Clear the chat input
 
 }
 
 // 退室メッセージをサーバに送信する
 const onExit = () => {
-  socket.emit("exitEvent",`${userName.value}さんが退室`)
+  socket.emit("exitEvent",`${userName.value}さんが退室しました。`)
 }
 
 // メモを画面上に表示する
 const onMemo = () => {
-  // メモの内容を表示
-  const memo = `${userName.value}さんのメモ${chatContent.value}`
+  if (chatContent.value.trim() === ''){
+    alert('メッセージを入力してください。')
+  }
+  else{
+    // メモの内容を表示
+    const memo = `${userName.value}さんのメモ：${chatContent.value}`
   chatList.unshift(memo)
-  // 入力欄を初期化
-  chatContent.value=""
+    // 入力欄を初期化
+    chatContent.value=""
+  }
 }
 // #endregion
 
@@ -108,7 +116,7 @@ const onReceiveExit = (data) => {
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  chatList.push(data)
+  chatList.unshift(`［${data.time}］${data.user}さん：${data.message}`)
 }
 // #endregion
 
@@ -121,7 +129,7 @@ const registerSocketEvent = () => {
       return
     }
     onReceiveEnter(data)
-  })
+      })
 
   // 退室イベントを受け取ったら実行
   socket.on("exitEvent", (data) => {
@@ -130,8 +138,6 @@ const registerSocketEvent = () => {
     }
     onReceiveExit(data)
   })
-
-
 
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
@@ -149,14 +155,14 @@ const registerSocketEvent = () => {
       <p>ログインユーザ：{{ userName }}さん</p>
       <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
       <div class="mt-5">
-        <!-- 並び替えボタンの追加 -->
-        <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "通常順に表示" : "逆順に表示" }}</button>
+<!-- 並び替えボタンの追加 -->
+        <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chat.user)">{{ chat }}</li>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" v-bind:style="messageStyle(chat.user)">{{ chat }}</li>
         </ul>
       </div>
     </div>
