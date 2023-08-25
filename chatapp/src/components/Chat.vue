@@ -39,9 +39,14 @@ const toggleOrder = () => {
 const currentUser = localStorage.getItem('username');
 
 // メッセージのスタイルを設定する関数
-const messageStyle = (messageUser) => {
-  if (messageUser === currentUser){
-  return "color: red;"
+const messageStyle = (data) => {
+  console.log("message")
+  console.log(data)
+  console.log(currentUser)
+  console.log(localStorage)
+  if (userName.value === currentUser){
+    console.log("messageIF")
+    return "color: red;"
   }
 }
 
@@ -68,17 +73,13 @@ alert('メッセージを入力してください。')
       }
     }
   }
-
-
   // 現在時刻の取得
   const today = new Date();
   const dayOfWeek = today.getDay() ;
   const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek] ;
-  // console.log(today.getFullYear() + "/" +  (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr);
-
   socket.emit("publishEvent",{user: userName.value,
                               message:chatContent.value,
-                              time:today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()})
+                              time:today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
   chatContent.value = "";  // Clear the chat input
 
 }
@@ -90,12 +91,16 @@ const onExit = () => {
 
 // メモを画面上に表示する
 const onMemo = () => {
+  // 現在時刻の取得
+  const today = new Date();
+  const dayOfWeek = today.getDay() ;
+  const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek] ;
   if (chatContent.value.trim() === ''){
     alert('メッセージを入力してください。')
   }
   else{
     // メモの内容を表示
-    const memo = `${userName.value}さんのメモ：${chatContent.value}`
+    const memo = `［${today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"}］${userName.value}さんのメモ：${chatContent.value}`
   chatList.unshift(memo)
     // 入力欄を初期化
     chatContent.value=""
@@ -162,7 +167,7 @@ const registerSocketEvent = () => {
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" v-bind:style="messageStyle(chat.user)">{{ chat }}</li>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">{{ chat }}</li>
         </ul>
       </div>
     </div>
