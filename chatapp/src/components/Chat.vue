@@ -51,9 +51,9 @@ const messageStyle = (data) => {
 
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-if (chatContent.value.trim() === ''){
-alert('メッセージを入力してください。')
-    return;
+  if (chatContent.value.trim() === ''){
+    alert('メッセージを入力してください。')
+      return;
   }
   // chatListが降順のとき
   if(isReversed.value===false){
@@ -90,20 +90,23 @@ const onExit = () => {
 
 // メモを画面上に表示する
 const onMemo = () => {
+  if (chatContent.value.trim() === ''){
+    alert('メッセージを入力してください。')
+    return;
+  }
+
   // 現在時刻の取得
   const today = new Date();
   const dayOfWeek = today.getDay() ;
   const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek] ;
-  if (chatContent.value.trim() === ''){
-    alert('メッセージを入力してください。')
-  }
-  else{
-    // メモの内容を表示
-    const memo = `［${today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"}］${userName.value}さんのメモ：${chatContent.value}`
-  chatList.unshift(memo)
-    // 入力欄を初期化
-    chatContent.value=""
-  }
+  // メモの内容を表示
+  // const memo = `［${today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"}］${userName.value}さんのメモ：${chatContent.value}`
+  // chatList.unshift(memo)
+  socket.emit("memoEvent", {user: userName.value,
+                            message: chatContent.value,
+                            time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
+  // 入力欄を初期化
+  chatContent.value="";
 }
 // #endregion
 
@@ -123,6 +126,11 @@ const onReceiveExit = (data) => {
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
   chatList.unshift(`［${data.time}］${data.user}さん：${data.message}`)
+}
+
+// サーバから受信したメモメッセージを画面上に表示する
+const onReceiveMemo = (data) => {
+  chatList.unshift(`［${data.time}］${data.user}さんのメモ：${data.message}`)
 }
 
 // 投稿したメッセージを削除
@@ -155,8 +163,12 @@ const registerSocketEvent = () => {
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data)
-  }
-  )
+  })
+
+  // メモイベントを受け取ったら実行
+  socket.on("memoEvent", (data) => {
+    onReceiveMemo(data)
+  })
 }
 // #endregion
 </script>
