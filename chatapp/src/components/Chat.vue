@@ -13,6 +13,7 @@ const socket = io()
 // #region reactive variable
 const chatContent = ref("")
 const chatList = reactive([])
+const userList = reactive([])
 const isReversed = ref(false);  // false: 通常順, true: 逆順　メッセージを新しい順、古い順に切り替える機能のため
 const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数　１分間に一回しかメッセージを送れないようにする
 // #endregion
@@ -40,12 +41,10 @@ const currentUser = localStorage.getItem('username');
 
 // メッセージのスタイルを設定する関数
 const messageStyle = (data) => {
-  console.log("message")
-  console.log(data)
-  console.log(currentUser)
-  console.log(localStorage)
+  // console.log(data)
+  // console.log(currentUser)
+  // console.log(localStorage)
   if (userName.value === currentUser){
-    console.log("messageIF")
     return "color: red;"
   }
 }
@@ -112,6 +111,8 @@ const onMemo = () => {
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
   chatList.unshift(data)
+  console.log("data:"+data.username)
+  userList.unshift(data.userName)
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
@@ -122,6 +123,13 @@ const onReceiveExit = (data) => {
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
   chatList.unshift(`［${data.time}］${data.user}さん：${data.message}`)
+}
+
+// 投稿したメッセージを削除
+const deleteChat = (index) => {
+  if(confirm("このコメントを削除してもよろしいですか？")){
+    chatList.splice(index, 1)
+  }
 }
 // #endregion
 
@@ -167,7 +175,7 @@ const registerSocketEvent = () => {
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">{{ chat }}</li>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">{{ chat }} <span @click="deleteChat(i)" class="button-normal" v-bind:style="{color: 'black'}">削除</span></li>
         </ul>
       </div>
     </div>
