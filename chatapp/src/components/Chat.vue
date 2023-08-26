@@ -20,6 +20,7 @@ const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数�
 
 // #region lifecycle
 onMounted(() => {
+  props: ['userName'],
   registerSocketEvent()
 })
 // #endregion
@@ -37,7 +38,10 @@ const toggleOrder = () => {
 };
 
 // ユーザー名をローカルストレージから取得
-const currentUser = localStorage.getItem('username');
+// const currentUser = localStorage.getItem('username');
+const database = localStorage.getItem('data');
+const currentUser = database['name'];
+const currentUserPass = database['password'];
 
 // メッセージのスタイルを設定する関数
 const messageStyle = (data) => {
@@ -113,8 +117,9 @@ const onMemo = () => {
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
+  username = route.params;
   chatList.unshift(data)
-  console.log("data:"+data.username)
+  console.log("data:"+username)
   userList.unshift(data.userName)
 }
 
