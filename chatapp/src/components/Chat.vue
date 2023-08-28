@@ -4,6 +4,7 @@ import io from "socket.io-client"
 
 // #region global state
 const userName = inject("userName")
+const password = inject("password")
 // #endregion
 
 // #region local variable
@@ -83,7 +84,7 @@ const onPublish = () => {
   socket.emit("publishEvent",{user: userName.value,
                               message:chatContent.value,
                               time:today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
-  chatContent.value = "";  // Clear the chat input
+  chatContent.value = null;  // Clear the chat input
 
 }
 
@@ -110,17 +111,17 @@ const onMemo = () => {
                             message: chatContent.value,
                             time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
   // 入力欄を初期化
-  chatContent.value="";
+  chatContent.value=null;
 }
 // #endregion
 
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  username = route.params;
+  // username = route.params;
   chatList.unshift(data)
-  console.log("data:"+username)
-  userList.unshift(data.userName)
+  // console.log("data:"+username)
+  // userList.unshift(data.userName)
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
@@ -183,7 +184,7 @@ const registerSocketEvent = () => {
     <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
     <div class="mt-10">
       <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
+      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent" v-on:keydown.enter="onPublish"></textarea>
       <div class="mt-5">
 <!-- 並び替えボタンの追加 -->
         <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
