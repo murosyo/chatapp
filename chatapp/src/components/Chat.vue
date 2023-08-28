@@ -4,6 +4,7 @@ import io from "socket.io-client"
 
 // #region global state
 const userName = inject("userName")
+const password = inject("password")
 // #endregion
 
 // #region local variable
@@ -20,6 +21,7 @@ const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数�
 
 // #region lifecycle
 onMounted(() => {
+  props: ['userName'],
   registerSocketEvent()
 })
 // #endregion
@@ -37,7 +39,10 @@ const toggleOrder = () => {
 };
 
 // ユーザー名をローカルストレージから取得
-const currentUser = localStorage.getItem('username');
+// const currentUser = localStorage.getItem('username');
+const database = localStorage.getItem('data');
+const currentUser = database['name'];
+const currentUserPass = database['password'];
 
 // メッセージのスタイルを設定する関数
 const messageStyle = (data) => {
@@ -51,9 +56,9 @@ const messageStyle = (data) => {
 
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-if (chatContent.value.trim() === ''){
-alert('メッセージを入力してください。')
-    return;
+  if (chatContent.value.trim() === ''){
+    alert('メッセージを入力してください。')
+      return;
   }
   // chatListが降順のとき
   if(isReversed.value===false){
@@ -79,7 +84,7 @@ alert('メッセージを入力してください。')
   socket.emit("publishEvent",{user: userName.value,
                               message:chatContent.value,
                               time:today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
-  chatContent.value = "";  // Clear the chat input
+  chatContent.value = null;  // Clear the chat input
 
 }
 
@@ -90,29 +95,33 @@ const onExit = () => {
 
 // メモを画面上に表示する
 const onMemo = () => {
+  if (chatContent.value.trim() === ''){
+    alert('メッセージを入力してください。')
+    return;
+  }
+
   // 現在時刻の取得
   const today = new Date();
   const dayOfWeek = today.getDay() ;
   const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek] ;
-  if (chatContent.value.trim() === ''){
-    alert('メッセージを入力してください。')
-  }
-  else{
-    // メモの内容を表示
-    const memo = `［${today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"}］${userName.value}さんのメモ：${chatContent.value}`
-  chatList.unshift(memo)
-    // 入力欄を初期化
-    chatContent.value=""
-  }
+  // メモの内容を表示
+  // const memo = `［${today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"}］${userName.value}さんのメモ：${chatContent.value}`
+  // chatList.unshift(memo)
+  socket.emit("memoEvent", {user: userName.value,
+                            message: chatContent.value,
+                            time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
+  // 入力欄を初期化
+  chatContent.value=null;
 }
 // #endregion
 
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
+  // username = route.params;
   chatList.unshift(data)
-  console.log("data:"+data.username)
-  userList.unshift(data.userName)
+  // console.log("data:"+username)
+  // userList.unshift(data.userName)
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
@@ -123,6 +132,11 @@ const onReceiveExit = (data) => {
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
   chatList.unshift(`［${data.time}］${data.user}さん：${data.message}`)
+}
+
+// サーバから受信したメモメッセージを画面上に表示する
+const onReceiveMemo = (data) => {
+  chatList.unshift(`［${data.time}］${data.user}さんのメモ：${data.message}`)
 }
 
 // 投稿したメッセージを削除
@@ -155,8 +169,12 @@ const registerSocketEvent = () => {
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
     onReceivePublish(data)
-  }
-  )
+  })
+
+  // メモイベントを受け取ったら実行
+  socket.on("memoEvent", (data) => {
+    onReceiveMemo(data)
+  })
 }
 // #endregion
 </script>
@@ -166,7 +184,7 @@ const registerSocketEvent = () => {
     <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
     <div class="mt-10">
       <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"></textarea>
+      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent" v-on:keydown.enter="onPublish"></textarea>
       <div class="mt-5">
 <!-- 並び替えボタンの追加 -->
         <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
