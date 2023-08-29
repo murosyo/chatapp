@@ -22,7 +22,7 @@ const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数�
 // #region lifecycle
 onMounted(() => {
   props: ['userName'],
-  registerSocketEvent()
+    registerSocketEvent()
 })
 // #endregion
 
@@ -49,69 +49,72 @@ const messageStyle = (data) => {
   // console.log(data)
   // console.log(currentUser)
   // console.log(localStorage)
-  if (userName.value === currentUser){
+  if (userName.value === currentUser) {
     return "color: red;"
   }
 }
 
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-  if (chatContent.value.trim() === ''){
+  if (chatContent.value.trim() === '') {
     alert('メッセージを入力してください。')
-      return;
+    return;
   }
   // chatListが降順のとき
-  if(isReversed.value===false){
+  if (isReversed.value === false) {
     // 最後のメッセージのユーザーを取得
     const lastMessageUser = chatList.length > 0 ? chatList[chatList.length - 1].user : null;
-    if(userName.value === lastMessageUser){
-    alert('連続してメッセージを送信することはできません。')
-    return;
-  }
-  else{
-    // 最後のメッセージのユーザーを取得
-    const lastMessageUser = chatList.length > 0 ? chatList[0].user : null;
-    if(userName.value === lastMessageUser){
-    alert('連続してメッセージを送信することはできません。')
-    return;
+    if (userName.value === lastMessageUser) {
+      alert('連続してメッセージを送信することはできません。')
+      return;
+    }
+    else {
+      // 最後のメッセージのユーザーを取得
+      const lastMessageUser = chatList.length > 0 ? chatList[0].user : null;
+      if (userName.value === lastMessageUser) {
+        alert('連続してメッセージを送信することはできません。')
+        return;
       }
     }
   }
   // 現在時刻の取得
   const today = new Date();
-  const dayOfWeek = today.getDay() ;
-  const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek] ;
-  socket.emit("publishEvent",{user: userName.value,
-                              message:chatContent.value,
-                              time:today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
+  const dayOfWeek = today.getDay();
+  const dayOfWeekStr = ["日", "月", "火", "水", "木", "金", "土"][dayOfWeek];
+  socket.emit("publishEvent", {
+    user: userName.value,
+    message: chatContent.value,
+    time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"
+  })
   chatContent.value = null;  // Clear the chat input
-
 }
 
 // 退室メッセージをサーバに送信する
 const onExit = () => {
-  socket.emit("exitEvent",`${userName.value}さんが退室しました。`)
+  socket.emit("exitEvent", `${userName.value}さんが退室しました。`)
 }
 
 // メモを画面上に表示する
 const onMemo = () => {
-  if (chatContent.value.trim() === ''){
+  if (chatContent.value.trim() === '') {
     alert('メッセージを入力してください。')
     return;
   }
 
   // 現在時刻の取得
   const today = new Date();
-  const dayOfWeek = today.getDay() ;
-  const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek] ;
+  const dayOfWeek = today.getDay();
+  const dayOfWeekStr = ["日", "月", "火", "水", "木", "金", "土"][dayOfWeek];
   // メモの内容を表示
   // const memo = `［${today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"}］${userName.value}さんのメモ：${chatContent.value}`
   // chatList.unshift(memo)
-  socket.emit("memoEvent", {user: userName.value,
-                            message: chatContent.value,
-                            time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/"+ today.getDate()  + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"})
+  socket.emit("memoEvent", {
+    user: userName.value,
+    message: chatContent.value,
+    time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"
+  })
   // 入力欄を初期化
-  chatContent.value=null;
+  chatContent.value = null;
 }
 // #endregion
 
@@ -141,7 +144,7 @@ const onReceiveMemo = (data) => {
 
 // 投稿したメッセージを削除
 const deleteChat = (index) => {
-  if(confirm("このコメントを削除してもよろしいですか？")){
+  if (confirm("このコメントを削除してもよろしいですか？")) {
     chatList.splice(index, 1)
   }
 }
@@ -156,7 +159,7 @@ const registerSocketEvent = () => {
       return
     }
     onReceiveEnter(data)
-      })
+  })
 
   // 退室イベントを受け取ったら実行
   socket.on("exitEvent", (data) => {
@@ -180,20 +183,24 @@ const registerSocketEvent = () => {
 </script>
 
 <template>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <div class="mx-auto my-5 px-4">
     <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
     <div class="mt-10">
       <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent" v-on:keydown.enter="onPublish"></textarea>
+      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"
+        v-on:keydown.enter="onPublish"></textarea>
       <div class="mt-5">
-<!-- 並び替えボタンの追加 -->
-        <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
+        <!-- 並び替えボタンの追加 -->
+        <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示"
+        }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">{{ chat }} <span @click="deleteChat(i)" class="button-normal" v-bind:style="{color: 'black'}">削除</span></li>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">{{ chat }} <span
+              @click="deleteChat(i)" class="button-normal" v-bind:style="{ color: 'black' }">削除</span></li>
         </ul>
       </div>
     </div>
