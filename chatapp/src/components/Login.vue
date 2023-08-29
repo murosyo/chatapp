@@ -2,6 +2,7 @@
 import { inject, reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import io from "socket.io-client"
+import sqlite3 from 'sqlite3'
 
 // #region global state
 const userName = inject("userName")
@@ -17,6 +18,9 @@ const socket = io()
 const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
+
+var db = new sqlite3.Database('userinfo.db');
+
 // const optionRooms = [ 
 //     { id: 1, name: 'Chat1' }, 
 //     { id: 2, name: 'Chat2' }, 
@@ -25,7 +29,11 @@ const chatRoom = ref("")
 //     { id: 5, name: 'Chat5' } ];
 // #endregion
 
-
+const addDB = () => {
+  db.serialize(function () {
+    var stmt = db.prepare("")
+  })
+}
 
 // #region browser event handler
 const Info = () => {
@@ -79,6 +87,7 @@ const checkPassword = () => {
 </script>
 
 <template>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <div class="mx-auto my-5 px-4">
     <h1 class="text-h3 font-weight-medium">Vue.js Chat サンプル</h1>
     <div class="mt-10">
