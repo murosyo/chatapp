@@ -25,6 +25,8 @@ const chatRoom = ref("")
 //     { id: 5, name: 'Chat5' } ];
 // #endregion
 
+
+
 // #region browser event handler
 const Info = () => {
   userName.value = inputUserName.value;
@@ -47,7 +49,7 @@ const onEnter = () => {
     // チャットルームへのパス
     const path = document.getElementById('chatRoom').value;
     // ユーザー名をローカルストレージに保存
-    localStorage.setItem("data", JSON.stringify({ 'username': inputUserName.value, 'password': inputPassWord.value }));
+    // localStorage.setItem("data", JSON.stringify({ 'username': inputUserName.value, 'password': inputPassWord.value }));
 
     // チャット画面へ遷移
     // router.push({ name: "Chat"})
