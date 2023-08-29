@@ -93,6 +93,31 @@ const onExit = () => {
   socket.emit("exitEvent",`${userName.value}さんが退室しました。`)
 }
 
+const onSpeak = () => {
+  if ('webkitSpeechRecognition' in window) {
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "ja";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          const transcript = event.results[i][0].transcript;
+          chatContent.value += transcript;  // 認識した文字をchatContentに追加
+        }
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error(`エラーが発生: ${event.error}`);
+    };
+
+    recognition.start();
+  }
+};
+
+
 // メモを画面上に表示する
 const onMemo = () => {
   if (chatContent.value.trim() === ''){
@@ -190,6 +215,7 @@ const registerSocketEvent = () => {
         <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+        <button type="button" class="button-normal button-exit" @click="onSpeak">音声で喋る</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
