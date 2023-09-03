@@ -1,5 +1,11 @@
 <script setup>
 import { provide, ref } from "vue"
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+
+VueAxios.use(VueAxios, axios)
+
+VueAxios.config.productionTip = false
 
 // #region reactive state
 const userName = ref("")
@@ -17,5 +23,4 @@ provide("password", password)
   <router-view />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

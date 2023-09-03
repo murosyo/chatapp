@@ -2,7 +2,7 @@
 import { inject, reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import io from "socket.io-client"
-import sqlite3 from 'sqlite3'
+// import sqlite3 from 'sqlite3'
 
 // #region global state
 const userName = inject("userName")
@@ -19,8 +19,10 @@ const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
 
-var db = new sqlite3.Database('userinfo.db');
-
+console.log("データベースに接続開始");
+const sqlite3 = require('sqlite3');
+const db = new sqlite3.Database('./../../userinfo.db');
+console.log("データベースに接続完了");
 // const optionRooms = [ 
 //     { id: 1, name: 'Chat1' }, 
 //     { id: 2, name: 'Chat2' }, 
@@ -30,9 +32,17 @@ var db = new sqlite3.Database('userinfo.db');
 // #endregion
 
 const addDB = () => {
-  db.serialize(function () {
-    var stmt = db.prepare("")
-  })
+  db.each("SELECT * FROM user_info WHERE name = '" + userName.value + "' AND password = '" + password.value + ";"), (err, row) => {
+    if (row.length != 0) {
+      alert('そのユーザ名は既に使用されています。他のユーザ名でログインしてください。')
+      return false
+    }
+    else {
+      alert('ログインに成功しました！')
+      db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName.value + "', '" + password.value + "', " + chatRoom.value + "');");
+    }
+  }
+  db.close();
 }
 
 // #region browser event handler
@@ -110,7 +120,7 @@ const checkPassword = () => {
         </option> -->
       </select>
     </div>
-    <button type="button" @click="onEnter" class="button-normal">入室する</button>
+    <button type="button" @click="onEnter, addDB" class="button-normal">入室する</button>
   </div>
 </template>
 
