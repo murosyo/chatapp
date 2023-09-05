@@ -19,10 +19,11 @@ const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
 
-console.log("データベースに接続開始");
-const sqlite3 = require('sqlite3');
-const db = new sqlite3.Database('./../../userinfo.db');
-console.log("データベースに接続完了");
+// console.log("データベースに接続開始");
+// const sqlite3 = require('sqlite3');
+// const db = new sqlite3.Database('./../../userinfo.db');
+
+// console.log("データベースに接続完了");
 // const optionRooms = [ 
 //     { id: 1, name: 'Chat1' }, 
 //     { id: 2, name: 'Chat2' }, 
@@ -31,19 +32,19 @@ console.log("データベースに接続完了");
 //     { id: 5, name: 'Chat5' } ];
 // #endregion
 
-const addDB = () => {
-  db.each("SELECT * FROM user_info WHERE name = '" + userName.value + "' AND password = '" + password.value + ";"), (err, row) => {
-    if (row.length != 0) {
-      alert('そのユーザ名は既に使用されています。他のユーザ名でログインしてください。')
-      return false
-    }
-    else {
-      alert('ログインに成功しました！')
-      db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName.value + "', '" + password.value + "', " + chatRoom.value + "');");
-    }
-  }
-  db.close();
-}
+// const addDB = () => {
+//   userinfo_db.each("SELECT * FROM user_info WHERE name = '" + userName.value + "' AND password = '" + password.value + ";"), (err, row) => {
+//     if (row.length != 0) {
+//       alert('そのユーザ名は既に使用されています。他のユーザ名でログインしてください。')
+//       return false
+//     }
+//     else {
+//       alert('ログインに成功しました！')
+//       db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName.value + "', '" + password.value + "', " + chatRoom.value + "');");
+//     }
+//   }
+//   db.close();
+// }
 
 // #region browser event handler
 const Info = () => {
@@ -60,7 +61,8 @@ const onEnter = () => {
   }
   else {
     // 入室メッセージを送信
-    socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
+    // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
+    socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value);
 
     // 全体で使用するnameに入力されたユーザー名を格納
     userName.value = inputUserName.value;
@@ -120,7 +122,7 @@ const checkPassword = () => {
         </option> -->
       </select>
     </div>
-    <button type="button" @click="onEnter, addDB" class="button-normal">入室する</button>
+    <button type="button" @click="onEnter" class="button-normal">入室する</button>
   </div>
 </template>
 

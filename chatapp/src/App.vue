@@ -1,11 +1,11 @@
 <script setup>
 import { provide, ref } from "vue"
-import axios from 'axios'
-import VueAxios from 'vue-axios'
+// import axios from 'axios'
+// import VueAxios from 'vue-axios'
 
-VueAxios.use(VueAxios, axios)
+// VueAxios.use(VueAxios, axios)
 
-VueAxios.config.productionTip = false
+// VueAxios.config.productionTip = false
 
 // #region reactive state
 const userName = ref("")
