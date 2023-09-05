@@ -3,6 +3,7 @@ import { inject, reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import io from "socket.io-client"
 
+
 // #region global state
 const userName = inject("userName")
 const password = inject("password")
@@ -17,9 +18,9 @@ const socket = io()
 const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
-// const optionRooms = [ 
-//     { id: 1, name: 'Chat1' }, 
-//     { id: 2, name: 'Chat2' }, 
+// const optionRooms = [
+//     { id: 1, name: 'Chat1' },
+//     { id: 2, name: 'Chat2' },
 //     { id: 3, name: 'Chat3' },
 //     { id: 4, name: 'Chat4' },
 //     { id: 5, name: 'Chat5' } ];
@@ -92,8 +93,8 @@ const checkPassword = () => {
         <option>Chat3</option>
         <option>Chat4</option>
         <option>Chat5</option>
-        <!-- <option v-for="Room in optionRooms" 
-          v-bind:value="Room.name" 
+        <!-- <option v-for="Room in optionRooms"
+          v-bind:value="Room.name"
           v-bind:key="Room.id">
         {{ Room.name }}
         </option> -->

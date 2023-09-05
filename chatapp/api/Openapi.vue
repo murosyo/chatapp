@@ -5,6 +5,7 @@ const CHATGPT_API_KEY = "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";
 
 export async function requestChatAPI(testInput) {
   const prompt = `命令書
+TL;TR
 あなたはプロの編集者です。以下の制約条件に従って、入力する文章を要約してください。
 
 制約条件
@@ -30,7 +31,7 @@ export async function requestChatAPI(testInput) {
     },
     {
       role: "user",
-      content: `入力文章を指定された文字数の範囲内に要約してください。要約された文章が文字数が範囲内に収まっていない場合には、文字を追加または削除する処理を繰り返します。/
+      content: `TL;TR 入力文章を指定された文字数の範囲内に要約してください。要約された文章が文字数が範囲内に収まっていない場合には、文字を追加または削除する処理を繰り返します。/
       - 入力文章: ${testInput} /
       - 文字数の上限:100`,
     }
