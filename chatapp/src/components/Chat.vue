@@ -184,13 +184,13 @@ const registerSocketEvent = () => {
 //追加
 import axios from 'axios';
 
-const CHATGPT_API_KEY = "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";
+const CHATGPT_API_KEY = "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";
 
-const gpt_text = document.getElementById("gpt_mes");
-const gpt_text2 = document.getElementById("gpt_mes2")
-const gpting = () => {
+// const gpt_text = document.getElementById("gpt_mes");
+// const gpt_text2 = document.getElementById("gpt_mes2")
+const gpting = (data) =>  {
   const prompt = `命令書
-  TL;TR
+TL;TR
 あなたはプロの編集者です。以下の制約条件に従って、入力する文章を要約してください。
 
 制約条件
@@ -202,9 +202,11 @@ const gpting = () => {
 ・文章中の数値には変更を加えない。
   `;
 
+  //TODO
+  console.log(data);
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer process.env.OPEN_API_KEY`,
+    Authorization: `Bearer ${CHATGPT_API_KEY}`,
   };
 
   const messages = [
@@ -215,7 +217,7 @@ const gpting = () => {
     {
       role: "user",
       content: `TL;TR 入力文章を指定された文字数の範囲内に要約してください。要約された文章が文字数が範囲内に収まっていない場合には、文字を追加または削除する処理を繰り返します。/
-      - 入力文章: ${gpt_text.value} /
+      - 入力文章: ${data} /
       - 文字数の上限:100`,
     }
   ];
@@ -226,17 +228,22 @@ const gpting = () => {
     messages: messages,
   };
 
-  axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      payload,
-      {
-        headers: headers,
-      }
-    ).then(function (response) {
-      gpt_text2.value = response;
-    })
-
+  
+const response =  axios.post(
+"https://api.openai.com/v1/chat/completions",
+payload,
+{
+  headers: headers,
 }
+).then(data => console.log(data.data.choices[0].message.content));
+console.log("結果が返ってきました");
+  // catch (error) {
+  //   console.error(error);
+  //   alert("エラーが発生しました。再リロードしてください");
+  //   throw error; // Re-throw the error so it can be handled in the calling code
+  // }
+}
+
 
 
 </script>
@@ -252,6 +259,7 @@ const gpting = () => {
         <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+        <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">送信</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
