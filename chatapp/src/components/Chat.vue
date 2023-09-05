@@ -22,7 +22,8 @@ const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数�
 // #region lifecycle
 onMounted(() => {
   props: ['userName'],
-  registerSocketEvent()
+  registerSocketEvent();
+  gpting();
 })
 // #endregion
 
@@ -177,6 +178,67 @@ const registerSocketEvent = () => {
   })
 }
 // #endregion
+
+
+
+//追加
+import axios from 'axios';
+
+const CHATGPT_API_KEY = "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";
+
+const gpt_text = document.getElementById("gpt_mes");
+const gpt_text2 = document.getElementById("gpt_mes2")
+const gpting = () => {
+  const prompt = `命令書
+  TL;TR
+あなたはプロの編集者です。以下の制約条件に従って、入力する文章を要約してください。
+
+制約条件
+・重要なキーワードを取りこぼさない。
+・文章の意味を変更しない。
+・架空の表現や言葉を使用しない。
+・入力する文章を句読点を含めて100文字以内にまとめて出力。
+・要約した文章の句読点を含めた文字数を出力。
+・文章中の数値には変更を加えない。
+  `;
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer process.env.OPEN_API_KEY`,
+  };
+
+  const messages = [
+    {
+      role: "system",
+      content: prompt,
+    },
+    {
+      role: "user",
+      content: `TL;TR 入力文章を指定された文字数の範囲内に要約してください。要約された文章が文字数が範囲内に収まっていない場合には、文字を追加または削除する処理を繰り返します。/
+      - 入力文章: ${gpt_text.value} /
+      - 文字数の上限:100`,
+    }
+  ];
+
+  const payload = {
+    model: "gpt-3.5-turbo",
+    max_tokens: 1000,
+    messages: messages,
+  };
+
+  axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      payload,
+      {
+        headers: headers,
+      }
+    ).then(function (response) {
+      gpt_text2.value = response;
+    })
+
+}
+
+
 </script>
 
 <template>
@@ -201,6 +263,13 @@ const registerSocketEvent = () => {
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
   </div>
+
+
+
+  <!--機能の追加-->
+  <textarea type="text" name="text" id="gpt_mes"></textarea>
+  <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">送信</button>
+  <textarea type="text" name="text" id="gpt_mes2" readonly></textarea>
 </template>
 
 <style scoped>

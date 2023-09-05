@@ -1,9 +1,10 @@
 <script setup>
 import axios from 'axios';
 
-const CHATGPT_API_KEY = "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";
+const CHATGPT_API_KEY = "q3T3Blbsk-SPNgYm05PkBilb7gSCkFJwut4P7OsgAmZBiKImEE5";
 
 export async function requestChatAPI(testInput) {
+  console.log("動作が走りました");
   const prompt = `命令書
 あなたはプロの編集者です。以下の制約条件に従って、入力する文章を要約してください。
 
@@ -20,7 +21,7 @@ export async function requestChatAPI(testInput) {
   console.log("動作が走りました");
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${CHATGPT_API_KEY}`,
+    Authorization: `Bearer {process.env.OPEN_API_KEY}`,
   };
 
   const messages = [
