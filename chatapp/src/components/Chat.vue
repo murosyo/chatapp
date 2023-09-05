@@ -4,7 +4,6 @@ import io from "socket.io-client"
 
 // #region global state
 const userName = inject("userName")
-const password = inject("password")
 // #endregion
 
 // #region local variable
@@ -14,9 +13,6 @@ const socket = io()
 // #region reactive variable
 const chatContent = ref("")
 const chatList = reactive([])
-const userList = reactive([])
-const isReversed = ref(false);  // false: 通常順, true: 逆順　メッセージを新しい順、古い順に切り替える機能のため
-const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数　１分間に一回しかメッセージを送れないようにする
 // #endregion
 
 // #region lifecycle
@@ -121,15 +117,12 @@ const onMemo = () => {
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  // username = route.params;
-  chatList.unshift(data)
-  // console.log("data:"+username)
-  // userList.unshift(data.userName)
+  chatList.push()
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
 const onReceiveExit = (data) => {
-  chatList.unshift(data)
+  chatList.push()
 }
 
 // サーバから受信した投稿メッセージを画面上に表示する
@@ -163,20 +156,12 @@ const registerSocketEvent = () => {
 
   // 退室イベントを受け取ったら実行
   socket.on("exitEvent", (data) => {
-    if (!data) {
-      return
-    }
-    onReceiveExit(data)
+
   })
 
   // 投稿イベントを受け取ったら実行
   socket.on("publishEvent", (data) => {
-    onReceivePublish(data)
-  })
 
-  // メモイベントを受け取ったら実行
-  socket.on("memoEvent", (data) => {
-    onReceiveMemo(data)
   })
 }
 // #endregion
