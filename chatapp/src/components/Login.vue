@@ -2,6 +2,7 @@
 import { inject, reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import io from "socket.io-client"
+import sqlite3 from 'sqlite3'
 
 // #region global state
 const userName = inject("userName")
@@ -17,6 +18,9 @@ const socket = io()
 const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
+
+var db = new sqlite3.Database('userinfo.db');
+
 // const optionRooms = [ 
 //     { id: 1, name: 'Chat1' }, 
 //     { id: 2, name: 'Chat2' }, 
@@ -24,6 +28,12 @@ const chatRoom = ref("")
 //     { id: 4, name: 'Chat4' },
 //     { id: 5, name: 'Chat5' } ];
 // #endregion
+
+const addDB = () => {
+  db.serialize(function () {
+    var stmt = db.prepare("")
+  })
+}
 
 // #region browser event handler
 const Info = () => {
@@ -38,8 +48,29 @@ const onEnter = () => {
   if (inputUserName.value.trim() === '') {
     alert('ユーザ名を入力してください。')
   }
-  // 入室メッセージを送信
-  socket.emit('enterEvent', { user: inputUserName.value });
+  else {
+    // 入室メッセージを送信
+    socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
+
+    // 全体で使用するnameに入力されたユーザー名を格納
+    userName.value = inputUserName.value;
+    // チャットルームへのパス
+    const path = document.getElementById('chatRoom').value;
+    // ユーザー名をローカルストレージに保存
+    // localStorage.setItem("data", JSON.stringify({ 'username': inputUserName.value, 'password': inputPassWord.value }));
+
+    // チャット画面へ遷移
+    // router.push({ name: "Chat"})
+
+    // const room = document.chatRoom;
+    // const num = room.selectedIndex;
+    // const path = room.options[num].value;
+    // console.log(room)
+    // console.log(num)
+    // console.log(path)
+    router.push({ name: `${path}` })
+  }
+}
 
   // チャット画面へ遷移
   router.push({ name: "Chat"})
@@ -48,6 +79,7 @@ const onEnter = () => {
 </script>
 
 <template>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <div class="mx-auto my-5 px-4">
     <h1 class="text-h3">Vue.js Chat</h1>
     <div class="mt-10">
