@@ -62,12 +62,25 @@ const onEnter = () => {
   else {
     // 入室メッセージを送信
     // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
-    socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value);
+    socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value, (response) => {
+      console.log(response.status);
+      if(response.status === "OK"){
+        alert('ログインに成功しました！');
+        userName.value = inputUserName.value;
+        const path = document.getElementById('chatRoom').value;
+        router.push({ name: `${path}` })
+      }
+      else{
+        alert('そのユーザ名は既に使用されています。他のユーザ名でログインしてください。');
+        inputUserName.value = "";
+        inputPassWord.value = "";
+      }
+    });
 
     // 全体で使用するnameに入力されたユーザー名を格納
-    userName.value = inputUserName.value;
+    // userName.value = inputUserName.value;
     // チャットルームへのパス
-    const path = document.getElementById('chatRoom').value;
+    // const path = document.getElementById('chatRoom').value;
     // ユーザー名をローカルストレージに保存
     // localStorage.setItem("data", JSON.stringify({ 'username': inputUserName.value, 'password': inputPassWord.value }));
 
@@ -80,7 +93,7 @@ const onEnter = () => {
     // console.log(room)
     // console.log(num)
     // console.log(path)
-    router.push({ name: `${path}` })
+    // router.push({ name: `${path}` })
   }
 }
 
