@@ -1,6 +1,11 @@
 <script setup>
 import { inject, ref, reactive, onMounted } from "vue"
 import io from "socket.io-client"
+import axios from 'axios';
+
+//グローバル変数
+const GPT_API = import.meta.env.VITE_TEST
+console.log("VUE_TEST:", import.meta.env.VITE_TEST);
 
 // #region global state
 const userName = inject("userName")
@@ -23,7 +28,7 @@ const lastPostTime = ref(null);  // 最後の投稿時刻を格納する変数�
 onMounted(() => {
   props: ['userName'],
   registerSocketEvent();
-  gpting();
+  // gpting();
 })
 // #endregion
 
@@ -96,6 +101,7 @@ const onExit = () => {
 
 // メモを画面上に表示する
 const onMemo = () => {
+  console.log(chatContent.value.trim())
   if (chatContent.value.trim() === ''){
     alert('メッセージを入力してください。')
     return;
@@ -179,16 +185,14 @@ const registerSocketEvent = () => {
 }
 // #endregion
 
-
-
-//追加
-import axios from 'axios';
-
-const CHATGPT_API_KEY = "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";
-
-// const gpt_text = document.getElementById("gpt_mes");
-// const gpt_text2 = document.getElementById("gpt_mes2")
-const gpting = (data) =>  {
+/**
+ * chatGPTに入力内容を要約させる関数です
+ * envでAPIを用意しています
+ * envの書き方は "GPT_API=[APIキー]"
+ */
+const gpting = async () =>  {
+  const message = chatContent.value.trim();
+  // 以降は同じ
   const prompt = `命令書
 TL;TR
 あなたはプロの編集者です。以下の制約条件に従って、入力する文章を要約してください。
@@ -203,10 +207,11 @@ TL;TR
   `;
 
   //TODO
-  console.log(data);
+  console.log(message);
+  
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${CHATGPT_API_KEY}`,
+    Authorization: `Bearer ${GPT_API}`,
   };
 
   const messages = [
@@ -216,9 +221,9 @@ TL;TR
     },
     {
       role: "user",
-      content: `TL;TR 入力文章を指定された文字数の範囲内に要約してください。要約された文章が文字数が範囲内に収まっていない場合には、文字を追加または削除する処理を繰り返します。/
-      - 入力文章: ${data} /
-      - 文字数の上限:100`,
+      content: `TL;TR 入力文章を要約してください。返す内容は要約された内容だけでいい。要約した文章の文字数は72文字ですとかいらない/
+      - 入力文章: ${message} /
+      `,
     }
   ];
 
@@ -228,24 +233,21 @@ TL;TR
     messages: messages,
   };
 
-  
-const response =  axios.post(
-"https://api.openai.com/v1/chat/completions",
-payload,
-{
-  headers: headers,
+  try {
+  const response = await axios.post(
+    "https://api.openai.com/v1/chat/completions",
+    payload,
+    { headers: headers }
+  );
+  chatContent.value = response.data.choices[0].message.content;
+  console.log(response.data.choices[0].message.content);
+  } catch (error) {
+    console.error(error);
+    alert("エラーが発生しました。再リロードしてください");
+  }
+
+  console.log("結果が返ってきました");
 }
-).then(data => console.log(data.data.choices[0].message.content));
-console.log("結果が返ってきました");
-  // catch (error) {
-  //   console.error(error);
-  //   alert("エラーが発生しました。再リロードしてください");
-  //   throw error; // Re-throw the error so it can be handled in the calling code
-  // }
-}
-
-
-
 </script>
 
 <template>
@@ -259,7 +261,7 @@ console.log("結果が返ってきました");
         <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
-        <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">送信</button>
+        <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">要約</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
@@ -271,13 +273,6 @@ console.log("結果が返ってきました");
       <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
     </router-link>
   </div>
-
-
-
-  <!--機能の追加-->
-  <textarea type="text" name="text" id="gpt_mes"></textarea>
-  <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">送信</button>
-  <textarea type="text" name="text" id="gpt_mes2" readonly></textarea>
 </template>
 
 <style scoped>
