@@ -1,6 +1,11 @@
 <script setup>
 import { inject, ref, reactive, onMounted } from "vue"
 import io from "socket.io-client"
+import axios from 'axios';
+
+//グローバル変数
+const GPT_API = import.meta.env.VITE_TEST
+console.log("VUE_TEST:", import.meta.env.VITE_TEST);
 
 // #region global state
 const userName = inject("userName")
@@ -194,6 +199,70 @@ const registerSocketEvent = () => {
   })
 }
 // #endregion
+
+/**
+ * chatGPTに入力内容を要約させる関数です
+ * envでAPIを用意しています
+ * envの書き方は "GPT_API=[APIキー]"
+ */
+const gpting = async () =>  {
+  const message = chatContent.value.trim();
+  // 以降は同じ
+  const prompt = `命令書
+TL;TR
+あなたはプロの編集者です。以下の制約条件に従って、入力する文章を要約してください。
+
+制約条件
+・重要なキーワードを取りこぼさない。
+・文章の意味を変更しない。
+・架空の表現や言葉を使用しない。
+・入力する文章を句読点を含めて100文字以内にまとめて出力。
+・要約した文章の句読点を含めた文字数を出力。
+・文章中の数値には変更を加えない。
+  `;
+
+  //TODO
+  console.log(message);
+  
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${GPT_API}`,
+  };
+
+  const messages = [
+    {
+      role: "system",
+      content: prompt,
+    },
+    {
+      role: "user",
+      content: `TL;TR 入力文章を要約してください。返す内容は要約された内容だけでいい。要約した文章の文字数は72文字ですとかいらない/
+      - 入力文章: ${message} /
+      `,
+    }
+  ];
+
+  const payload = {
+    model: "gpt-3.5-turbo",
+    max_tokens: 1000,
+    messages: messages,
+  };
+
+  try {
+  const response = await axios.post(
+    "https://api.openai.com/v1/chat/completions",
+    payload,
+    { headers: headers }
+  );
+  chatContent.value = response.data.choices[0].message.content;
+  console.log(response.data.choices[0].message.content);
+  } catch (error) {
+    console.error(error);
+    alert("エラーが発生しました。再リロードしてください");
+  }
+
+  console.log("結果が返ってきました");
+}
 </script>
 
 <template>
@@ -210,6 +279,7 @@ const registerSocketEvent = () => {
         }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+        <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">要約</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
