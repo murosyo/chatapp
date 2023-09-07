@@ -19,33 +19,6 @@ const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
 
-// console.log("データベースに接続開始");
-// const sqlite3 = require('sqlite3');
-// const db = new sqlite3.Database('./../../userinfo.db');
-
-// console.log("データベースに接続完了");
-// const optionRooms = [ 
-//     { id: 1, name: 'Chat1' }, 
-//     { id: 2, name: 'Chat2' }, 
-//     { id: 3, name: 'Chat3' },
-//     { id: 4, name: 'Chat4' },
-//     { id: 5, name: 'Chat5' } ];
-// #endregion
-
-// const addDB = () => {
-//   userinfo_db.each("SELECT * FROM user_info WHERE name = '" + userName.value + "' AND password = '" + password.value + ";"), (err, row) => {
-//     if (row.length != 0) {
-//       alert('そのユーザ名は既に使用されています。他のユーザ名でログインしてください。')
-//       return false
-//     }
-//     else {
-//       alert('ログインに成功しました！')
-//       db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName.value + "', '" + password.value + "', " + chatRoom.value + "');");
-//     }
-//   }
-//   db.close();
-// }
-
 // #region browser event handler
 const Info = () => {
   userName.value = inputUserName.value;
@@ -64,8 +37,14 @@ const onEnter = () => {
     // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
     socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value, (response) => {
       console.log(response.status);
-      if(response.status === "OK"){
-        alert('ログインに成功しました！');
+      if(response.status === "SIGN IN"){
+        alert('サインインに成功しました！');
+        userName.value = inputUserName.value;
+        const path = document.getElementById('chatRoom').value;
+        router.push({ name: `${path}` })
+      }
+      else if(response.status === "SIGN UP"){
+        alert('サインアップに成功しました！');
         userName.value = inputUserName.value;
         const path = document.getElementById('chatRoom').value;
         router.push({ name: `${path}` })
@@ -76,29 +55,19 @@ const onEnter = () => {
         inputPassWord.value = "";
       }
     });
-
-    // 全体で使用するnameに入力されたユーザー名を格納
-    // userName.value = inputUserName.value;
-    // チャットルームへのパス
-    // const path = document.getElementById('chatRoom').value;
-    // ユーザー名をローカルストレージに保存
-    // localStorage.setItem("data", JSON.stringify({ 'username': inputUserName.value, 'password': inputPassWord.value }));
-
-    // チャット画面へ遷移
-    // router.push({ name: "Chat"})
-
-    // const room = document.chatRoom;
-    // const num = room.selectedIndex;
-    // const path = room.options[num].value;
-    // console.log(room)
-    // console.log(num)
-    // console.log(path)
-    // router.push({ name: `${path}` })
   }
 }
 
-  // チャット画面へ遷移
-  router.push({ name: "Chat"})
+const checkPassword = () => {
+  var txtPass = document.getElementById("password");
+  var passbtn = document.getElementById("passbtn");
+  if (txtPass.type === "text") {
+    txtPass.type = "password";
+    passbtn.innerText = "パスワード表示";
+  } else {
+    txtPass.type = "text";
+    passbtn.innerText = "パスワード非表示";
+  }
 }
 // #endregion
 </script>
@@ -113,17 +82,12 @@ const onEnter = () => {
       <tr><th>パスワード</th><td><input type="password" id="password" class="user-name-text" v-model="inputPassWord" /></td><td><button id="passbtn" @click="checkPassword" class="button-1">パスワード表示</button><br></td></tr>
       <tr><th>チャットルーム</th><td>
       <select id="chatRoom" class="chatroom-list" v-model="chatRoom">
-        <option value="">選択してください↓</option>
+        <option disabled value="">選択してください↓</option>
         <option value="Chat1">Chat1</option>
         <option value="Chat2">Chat2</option>
         <option value="Chat3">Chat3</option>
         <option value="Chat4">Chat4</option>
         <option value="Chat5">Chat5</option>
-        <!-- <option v-for="Room in optionRooms" 
-          v-bind:value="Room.name" 
-          v-bind:key="Room.id">
-        {{ Room.name }}
-        </option> -->
       </select>
       </td><td></td>
       </tr>
