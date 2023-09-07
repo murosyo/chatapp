@@ -16,17 +16,16 @@ export default (io, socket) => {
     userinfo_db.each("select count(*) from user_info where name = '"+ userName + "' AND password = '" + password + "';", (err, row) => {
       if (row['count(*)'] > 0) {
         callback({
-          status:"NG"
+          status:"SIGN IN"
         });
-        return false
+        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
       else {
         callback({
-          status:"OK"
+          status:"SIGN UP"
         });
         userinfo_db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName + "', '" + password + "', '" + room + "');");
-
-      socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
     })
     // userinfo_db.close();
