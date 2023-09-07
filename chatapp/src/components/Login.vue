@@ -2,6 +2,7 @@
 import { inject, reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import io from "socket.io-client"
+// import sqlite3 from 'sqlite3'
 
 // #region global state
 const userName = inject("userName")
@@ -17,13 +18,6 @@ const socket = io()
 const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
-// const optionRooms = [ 
-//     { id: 1, name: 'Chat1' }, 
-//     { id: 2, name: 'Chat2' }, 
-//     { id: 3, name: 'Chat3' },
-//     { id: 4, name: 'Chat4' },
-//     { id: 5, name: 'Chat5' } ];
-// #endregion
 
 // #region browser event handler
 const Info = () => {
@@ -40,25 +34,27 @@ const onEnter = () => {
   }
   else {
     // 入室メッセージを送信
-    socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
-
-    // 全体で使用するnameに入力されたユーザー名を格納
-    userName.value = inputUserName.value;
-    // チャットルームへのパス
-    const path = document.getElementById('chatRoom').value;
-    // ユーザー名をローカルストレージに保存
-    localStorage.setItem("data", JSON.stringify({ 'username': inputUserName.value, 'password': inputPassWord.value }));
-
-    // チャット画面へ遷移
-    // router.push({ name: "Chat"})
-
-    // const room = document.chatRoom;
-    // const num = room.selectedIndex;
-    // const path = room.options[num].value;
-    // console.log(room)
-    // console.log(num)
-    // console.log(path)
-    router.push({ name: `${path}` })
+    // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
+    socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value, (response) => {
+      console.log(response.status);
+      if(response.status === "SIGN IN"){
+        alert('サインインに成功しました！');
+        userName.value = inputUserName.value;
+        const path = document.getElementById('chatRoom').value;
+        router.push({ name: `${path}` })
+      }
+      else if(response.status === "SIGN UP"){
+        alert('サインアップに成功しました！');
+        userName.value = inputUserName.value;
+        const path = document.getElementById('chatRoom').value;
+        router.push({ name: `${path}` })
+      }
+      else{
+        alert('そのユーザ名は既に使用されています。他のユーザ名でログインしてください。');
+        inputUserName.value = "";
+        inputPassWord.value = "";
+      }
+    });
   }
 }
 
@@ -77,44 +73,43 @@ const checkPassword = () => {
 </script>
 
 <template>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Vue.js Chat サンプル</h1>
+    <h1 class="text-h3">Vue.js Chat</h1>
     <div class="mt-10">
-      <p>ユーザー名</p>
-      <input type="text" class="user-name-text" v-model="inputUserName" />
-      <p>パスワード</p>
-      <input type="password" id="password" class="user-name-text" v-model="inputPassWord" /><button id="passbtn"
-        @click="checkPassword">パスワード表示</button><br>
+      <table>
+      <tr><th>ユーザー名</th><td><input type="text" class="user-name-text" v-model="inputUserName" /></td><td></td></tr>
+      <tr><th>パスワード</th><td><input type="password" id="password" class="user-name-text" v-model="inputPassWord" /></td><td><button id="passbtn" @click="checkPassword" class="button-1">パスワード表示</button><br></td></tr>
+      <tr><th>チャットルーム</th><td>
       <select id="chatRoom" class="chatroom-list" v-model="chatRoom">
-        <option disabled value="">チャットルーム一覧 ▼</option>
-        <option>Chat1</option>
-        <option>Chat2</option>
-        <option>Chat3</option>
-        <option>Chat4</option>
-        <option>Chat5</option>
-        <!-- <option v-for="Room in optionRooms" 
-          v-bind:value="Room.name" 
-          v-bind:key="Room.id">
-        {{ Room.name }}
-        </option> -->
+        <option disabled value="">選択してください↓</option>
+        <option value="Chat1">Chat1</option>
+        <option value="Chat2">Chat2</option>
+        <option value="Chat3">Chat3</option>
+        <option value="Chat4">Chat4</option>
+        <option value="Chat5">Chat5</option>
       </select>
+      </td><td></td>
+      </tr>
+      </table>
     </div>
-    <button type="button" @click="onEnter" class="button-normal">入室する</button>
+    <button type="button" @click="onEnter" class="button-2">入室</button>
   </div>
 </template>
 
 <style scoped>
+
+
 .user-name-text {
   width: 200px;
   border: 1px solid #888;
-  margin-bottom: 16px;
+  vertical-align: middle;
 }
 
 .chatroom-list {
   position: relative;
 }
 
-.chatroom-list::before,
 .chatroom-list::after {
   position: absolute;
   content: '';
@@ -160,4 +155,43 @@ const checkPassword = () => {
 .chatroom-list select:focus {
   outline: 1px solid #2589d0;
 }
+
+.mt-10{
+  width: 80%;
+  margin:0 auto;
+}
+
+.mt-10 th{
+  text-align: left;
+  width: 25%;
+}
+.mt-10 td{
+  width: 35%;
+}
+
+.button-2{
+  border-radius: 3px;
+    position: relative;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 220px;
+    padding: 10px 25px;
+    color: #FFF;
+    transition: 0.3s ease-in-out;
+    font-weight: 600;
+    background: rgb(149,202,252);
+    background: linear-gradient(270deg, rgba(149,202,252,1) 0%, rgba(107,182,255,1) 100%);
+}
+
+.button-2{
+  background: rgb(117,188,255);
+  background: linear-gradient(270deg, rgba(117,188,255,1) 0%, rgba(62,159,252,1) 100%);
+}
+
+.text-h3::first-letter{
+  color: rgba(62,159,252,1);
+}
+
 </style>
