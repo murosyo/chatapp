@@ -39,21 +39,22 @@ const toggleOrder = () => {
 
 // ユーザー名をローカルストレージから取得
 // const currentUser = localStorage.getItem('username');
-const database = localStorage.getItem('data');
-const currentUser = database['name'];
-const currentUserPass = database['password'];
+// const database = localStorage.getItem('data');
+// const currentUser = database['name'];
+// const currentUserPass = database['password'];
 
 // メッセージのスタイルを設定する関数
 const messageStyle = (data) => {
-  if (userName.value === currentUser) {
-    return {
-      color: "red",
-      'white-space': 'pre-line'
-    }
-  }
-  else {
-    return {'white-space': 'pre-line'}
-  }
+  // if (userName.value === currentUser) {
+  //   return {
+  //     color: "red",
+  //     'white-space': 'pre-line'
+  //   }
+  // }
+  // else {
+  //   return {'white-space': 'pre-line'}
+  // }
+  return {'white-space': 'pre-line'}
 }
 
 // 投稿メッセージをサーバに送信する
