@@ -42,12 +42,6 @@ const toggleOrder = () => {
   reverseMessages();
 };
 
-// ユーザー名をローカルストレージから取得
-// const currentUser = localStorage.getItem('username');
-// const database = localStorage.getItem('data');
-// const currentUser = database['name'];
-// const currentUserPass = database['password'];
-
 // メッセージのスタイルを設定する関数
 const messageStyle = (data) => {
   // if (userName.value === currentUser) {
@@ -68,24 +62,6 @@ const onPublish = () => {
     alert('メッセージを入力してください。')
     return;
   }
-  // バグりそうだがらコメント
-  // // chatListが降順のとき
-  // if (isReversed.value === false) {
-  //   // 最後のメッセージのユーザーを取得
-  //   const lastMessageUser = chatList.length > 0 ? chatList[chatList.length - 1].user : null;
-  //   if (userName.value === lastMessageUser) {
-  //     alert('連続してメッセージを送信することはできません。')
-  //     return;
-  //   }
-  //   else {
-  //     // 最後のメッセージのユーザーを取得
-  //     const lastMessageUser = chatList.length > 0 ? chatList[0].user : null;
-  //     if (userName.value === lastMessageUser) {
-  //       alert('連続してメッセージを送信することはできません。')
-  //       return;
-  //     }
-  //   }
-      // }
   // 現在時刻の取得
   const today = new Date();
   const dayOfWeek = today.getDay();
@@ -129,10 +105,7 @@ const onMemo = () => {
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
 const onReceiveEnter = (data) => {
-  // username = route.params;
   chatList.unshift(data)
-  // console.log("data:"+username)
-  // userList.unshift(data.userName)
 }
 
 // サーバから受信した退室メッセージを受け取り画面上に表示する
@@ -142,17 +115,6 @@ const onReceiveExit = (data) => {
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  // console.log(data.message)
-  // console.log(data.message.length)
-  // console.log(typeof data.message)
-  // for(var i=0;i<data.message.length;i++){
-  //   if(data.message[i].match(/\r?\n/)){
-  //     // console.log("i:"+i);
-  //     data.message[i].concat('\n')
-  //   }
-  // }
-  // data.message = data.message.replace(/\r?\n/g, '\n')
-  // data.message = data.message.replace(/\r?\n/g, /<br>/)
   chatList.unshift(`［${data.time}］${data.user}さん\n${data.message}`)
 }
 
