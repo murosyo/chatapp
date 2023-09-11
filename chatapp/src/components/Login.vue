@@ -81,19 +81,19 @@ const onEnter = () => {
     // console.log(num)
     // console.log(path)
     router.push({ name: `${path}` })
+    // チャット画面へ遷移
+    router.push({ name: "Chat"})
   }
 }
 
-  // チャット画面へ遷移
-  router.push({ name: "Chat"})
-}
 // #endregion
 </script>
 
 <template>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3">Vue.js Chat</h1>
+    <h1 class="text-h3">楽々おしゃべり</h1>
+    <h1 class="text-h4">ログインルーム</h1>
     <div class="mt-10">
       <table>
       <tr><th>ユーザー名</th><td><input type="text" class="user-name-text" v-model="inputUserName" /></td><td></td></tr>
@@ -145,7 +145,7 @@ const onEnter = () => {
   width: 2.8em;
   height: 2.8em;
   border-radius: 0 25px 25px 0;
-  background-color: #2589d0;
+  background-color: #ff9d00;
   content: '';
 }
 
@@ -168,7 +168,7 @@ const onEnter = () => {
   min-width: 230px;
   height: 2.8em;
   padding: .4em 3.6em .4em .8em;
-  border: 2px solid #2589d0;
+  border: 2px solid #ff9d00;
   border-radius: 25px;
   color: #333333;
   font-size: 1em;
@@ -176,7 +176,7 @@ const onEnter = () => {
 }
 
 .chatroom-list select:focus {
-  outline: 1px solid #2589d0;
+  outline: 1px solid #ff9d00;
 }
 
 .mt-10{
@@ -193,28 +193,28 @@ const onEnter = () => {
 }
 
 .button-2{
-  border-radius: 3px;
-    position: relative;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin: 0 auto;
-    max-width: 220px;
-    padding: 10px 25px;
-    color: #FFF;
-    transition: 0.3s ease-in-out;
-    font-weight: 600;
-    background: rgb(149,202,252);
-    background: linear-gradient(270deg, rgba(149,202,252,1) 0%, rgba(107,182,255,1) 100%);
-}
-
-.button-2{
-  background: rgb(117,188,255);
-  background: linear-gradient(270deg, rgba(117,188,255,1) 0%, rgba(62,159,252,1) 100%);
+  color: #FFF;
+  background-color: #ff9d00;
+  font-weight: 600;
+  border: none;
+  width: 50px;
+  height: 30px;
+  border-radius: 0.5rem;
+  display: block;
+  margin: auto;
 }
 
 .text-h3::first-letter{
-  color: rgba(62,159,252,1);
+  font-weight: 600;
+  padding: 0.3rem;
+  border-radius: 0.5rem;
+  color: white;
+  background-color: #ff9d00;
+}
+
+.text-h4{
+  font-size: 40%;
+  padding-left: 100px;
 }
 
 </style>

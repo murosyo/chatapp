@@ -37,8 +37,8 @@ const toggleOrder = () => {
 // ユーザー名をローカルストレージから取得
 // const currentUser = localStorage.getItem('username');
 const database = localStorage.getItem('data');
-const currentUser = database['name'];
-const currentUserPass = database['password'];
+// const currentUser = database['name'];
+//const currentUserPass = database['password'];
 
 // メッセージのスタイルを設定する関数
 const messageStyle = (data) => {
@@ -170,17 +170,24 @@ const registerSocketEvent = () => {
 <template>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">Vue.js Chat チャットルーム</h1>
+    <h1 class="text-h3 font-weight-medium">楽々おしゃべり</h1>
+    <p class="text-h4" margin-top="10px">チャットルーム</p>
     <div class="mt-10">
-      <p>ログインユーザ：{{ userName }}さん</p>
-      <textarea variant="outlined" placeholder="投稿文を入力してください" rows="4" class="area" v-model="chatContent"
-        v-on:keydown.enter="onPublish"></textarea>
-      <div class="mt-5">
+      <p>
+        ログインユーザ：{{ userName }} さん
+      <router-link to="/" class="link">
+        <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
+      </router-link>
+      </p>
+      <div class="border">
         <!-- 並び替えボタンの追加 -->
+        <p>
         <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示"
         }}</button>
-        <button type="button" class="button-normal" @click="onPublish">投稿する</button>
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
+        </p>
+        <textarea placeholder="投稿文を入力してください" outline="none" rows="4" class="area" v-model="chatContent" v-on:keydown.enter="onPublish"></textarea>
+        <button type="button" class="button-normal button-post" @click="onPublish">投稿する</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
@@ -189,9 +196,6 @@ const registerSocketEvent = () => {
         </ul>
       </div>
     </div>
-    <router-link to="/" class="link">
-      <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-    </router-link>
   </div>
 </template>
 
@@ -201,9 +205,9 @@ const registerSocketEvent = () => {
 }
 
 .area {
-  width: 500px;
-  border: 1px solid #000;
+  width: 100%;
   margin-top: 8px;
+  outline: none;
 }
 
 .item {
@@ -214,8 +218,41 @@ const registerSocketEvent = () => {
   margin-left: 8px;
 }
 
+.button-normal{
+  color: #FFF;
+  background-color: #ff9d00;
+  font-weight: 600;
+  border: none;
+}
+
 .button-exit {
-  color: #000;
-  margin-top: 8px;
+  float: right;
+}
+
+.button-post{
+  display: block;
+  margin-left: auto;
+}
+
+.border{
+  border: 1px solid #000;
+  margin-top: 10px;
+}
+
+.text-h3::first-letter{
+  font-weight: 600;
+  padding: 0.3rem;
+  border-radius: 0.5rem;
+  color: white;
+  background-color: #ff9d00;
+}
+
+.text-h4{
+  font-size: 40%;
+  padding-left: 100px;
+}
+
+.border{
+  border: 10px solid #000;
 }
 </style>
