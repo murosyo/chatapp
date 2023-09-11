@@ -10,6 +10,17 @@ const chatlog_db = new sqlite3.Database(path.join(process.cwd(), 'chatlog.db'));
 console.log("データベースに接続完了");
 
 export default (io, socket) => {
+  userinfo_db.each("select * from user_info;", (err, row) => {
+    console.log(row['name'], row['password'], row['room']);
+    // console.log(row['password']);
+    // callback({
+    //   name:row['name'],
+    //   password:row['password'],
+    //   room:row['room'],
+    //   data: row
+    // });
+  })
+
   // 入室メッセージをクライアントに送信する
   socket.on("enterEvent", (userName, password, room, callback) => {
     // console.log(userName, password, room)
@@ -20,29 +31,18 @@ export default (io, socket) => {
         callback({
           status:"SIGN IN"
         });
-        userinfo_db.each("select name, password from user_info;", (err, row) => {
-          console.log(row['name'])
-          callback({
-            status:"OK"
-          });
-        })
-        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+        // socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
       else {
         callback({
           status:"SIGN UP"
         });
-        userinfo_db.each("select name, password from user_info;", (err, row) => {
-          console.log(row['name'])
-          callback({
-            status:"OK"
-          });
-        })
         userinfo_db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName + "', '" + password + "', '" + room + "');");
-        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+        // socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
-    }
-    )
+    })
+
+    socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
     // userinfo_db.close();
     // socket.broadcast.emit("enterEvent", data)
   })

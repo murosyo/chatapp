@@ -5,7 +5,8 @@ import axios from 'axios';
 
 //グローバル変数
 const GPT_API = import.meta.env.VITE_TEST
-console.log("VUE_TEST:", import.meta.env.VITE_TEST);
+//音声認識を終了するのに必要な変数
+let recognition;
 
 // #region global state
 const userName = inject("userName")
@@ -70,6 +71,9 @@ const messageStyle = (data) => {
 
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
+  if (recognition) {
+    recognition.stop();  // 音声認識を停止
+  }
   if (chatContent.value === '') {
     alert('メッセージを入力してください。')
     return;
@@ -92,8 +96,43 @@ const onExit = () => {
   socket.emit("exitEvent", `${userName.value}さんが退室しました。`)
 }
 
+/**
+ * 音声認識をしてくれる関数.
+ * 画面上で音声ボタンをクリックすると記録が始まり、その内容を入力欄に記入してくれる.
+ * ローカルサーバーでのみ録音が可能.
+ * http://52.198.163.115:10038/ではこの関数が使えない.
+ * 投稿,メモボタンを押すと終了する.
+ */
+ const onSpeak = () => {
+  if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = "ja";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          const transcript = event.results[i][0].transcript;
+          chatContent.value += transcript;  // 認識した文字をchatContentに追加
+        }
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error(`エラーが発生: ${event.error}`);
+    };
+
+    recognition.start();
+  }
+};
+
+
 // メモを画面上に表示する
 const onMemo = () => {
+  if (recognition) {
+    recognition.stop();  // 音声認識を停止
+  }
   if (chatContent.value === '') {
     alert('メッセージを入力してください。')
     return;
@@ -137,7 +176,7 @@ const onReceiveMemo = (data) => {
 
 // 投稿したメッセージを削除
 const deleteChat = (index) => {
-  if (confirm("このコメントを削除してもよろしいですか？")) {
+  if (confirm("このコメントを削除してもいいですか？")) {
     chatList.splice(index, 1)
   }
 }
@@ -268,6 +307,8 @@ TL;TR
         </p>
         <textarea placeholder="投稿文を入力してください" outline="none" rows="4" class="area" v-model="chatContent" v-on:keydown.enter="onPublish"></textarea>
         <button type="button" class="button-normal button-post" @click="onPublish">投稿する</button>
+        <button type="button" class="button-normal button-exit" @click="onSpeak">音声</button>
+
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
