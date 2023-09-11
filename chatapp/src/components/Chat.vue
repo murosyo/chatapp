@@ -27,7 +27,19 @@ const isReversed = ref(false);  // false: 通常順, true: 逆順　メッセー
 onMounted(() => {
   props: ['userName'],
     registerSocketEvent()
+    socketTest()
 })
+
+const socketTest = () => {
+  socket.on("enterEvent", (data) => {
+    if (!data) {
+      return
+    }
+    onReceiveEnter(data)
+  })
+}
+
+
 // #endregion
 
 // #region browser event handler
@@ -134,6 +146,11 @@ const deleteChat = (index) => {
 // #region local methods
 // イベント登録をまとめる
 const registerSocketEvent = () => {
+  //test
+  socket.on("enterEvent", (userName, password, room, callback) => {
+    console.log(userName, password, room, callback)
+  })
+
   // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
     if (!data) {

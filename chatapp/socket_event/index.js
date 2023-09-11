@@ -14,6 +14,8 @@ export default (io, socket) => {
   socket.on("enterEvent", (userName, password, room, callback) => {
     // console.log(userName, password, room)
     userinfo_db.each("select count(*) from user_info where name = '"+ userName + "' AND password = '" + password + "';", (err, row) => {
+      //もしユーザー情報を入力するごとに１になり、されていなければ０とする.
+      //ユーザー情報が正しく１ならログインし、0ならDBに新規にユーザー情報を取得する
       if (row['count(*)'] > 0) {
         callback({
           status:"SIGN IN"
