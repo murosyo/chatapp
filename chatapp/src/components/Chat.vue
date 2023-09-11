@@ -185,10 +185,14 @@ const deleteChat = (index) => {
 // #region local methods
 // イベント登録をまとめる
 const registerSocketEvent = () => {
-  //test
-  socket.on("enterEvent", (userName, password, room, callback) => {
-    console.log(userName, password, room, callback)
-  })
+
+  // sendUserInfoイベントを受け取ったら実行
+  socket.on("sendUserInfo", (data) => {
+    if (!data) {
+      return
+    }
+    console.log("受け取ったユーザー情報:", data);
+  });
 
   // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
@@ -238,9 +242,6 @@ TL;TR
 ・要約した文章の句読点を含めた文字数を出力。
 ・文章中の数値には変更を加えない。
   `;
-
-  //TODO
-  console.log(message);
   
   const headers = {
     "Content-Type": "application/json",
@@ -285,92 +286,90 @@ TL;TR
 
 <template>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">楽々おしゃべり</h1>
-    <p class="text-h4" margin-top="10px">チャットルーム</p>
+  <div class="page.App mx-auto my-5 px-4">
+    <h1 class="text-h3 font-weight-medium">楽楽チャット</h1>
     <div class="mt-10">
       <p>
         ログインユーザ：{{ userName }} さん
-      <router-link to="/" class="link">
-        <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-      </router-link>
+        <router-link to="/" class="link">
+          <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
+        </router-link>
       </p>
-      <div class="border">
-        <!-- 並び替えボタンの追加 -->
+      <div class="border-chat">
         <p>
-        <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示"
-        }}</button>
-        
-        <button type="button" class="button-normal" @click="onPublish">投稿する</button>
-        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
-        <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">要約</button>
+          <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
+          <button type="button" class="button-normal" @click="onMemo">メモ</button>
+          <button type="button" class="button-normal" id="gpting" @click="gpting">要約</button>
+          <button type="button" class="button-normal" @click="onSpeak">音声</button>
         </p>
-        <textarea placeholder="投稿文を入力してください" outline="none" rows="4" class="area" v-model="chatContent" v-on:keydown.enter="onPublish"></textarea>
+        <textarea placeholder="投稿したいメッセージを入力してください" outline="none" rows="4" class="area" v-model.trim="chatContent" v-on:keydown.ctrl.enter="onPublish"></textarea>
         <button type="button" class="button-normal button-post" @click="onPublish">投稿する</button>
-        <button type="button" class="button-normal button-exit" @click="onSpeak">音声</button>
-
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">{{ chat }} <span
-              @click="deleteChat(i)" class="button-normal" v-bind:style="{ color: 'black' }">削除</span></li>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">
+            {{ chat }} 
+            <span @click="deleteChat(i)" class="button-normal delete-button">削除</span>
+          </li>
         </ul>
       </div>
     </div>
-    <router-link to="/" class="link">
-      <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-    </router-link>
+    <router-link to="/" class="link"></router-link>
   </div>
 </template>
 
 <style scoped>
-.button-normal{
+.button-normal {
   color: #FFF;
   background-color: #ff9d00;
   font-weight: 600;
   border: none;
+  margin-right: 10px;
 }
 .link {
   text-decoration: none;
 }
-
 .area {
   width: 100%;
   outline: none;
   margin-top: 8px;
-}
 
+}
 .item {
   display: block;
 }
-
 .util-ml-8px {
   margin-left: 8px;
 }
-
 .button-exit {
   float: right;
 }
-.button-post{
+.button-post {
   display: block;
   margin-left: auto;
 }
-.border{
-  border: 1px solid #000;
-  margin-top: 10px;
+.border-chat {
+  border: 2px solid #000;
+  border-radius: 10px;  /* 角を丸く */
+  margin-top: 20px;  /* 上に20pxのマージン */
+  margin-bottom: 20px;  /* 下に20pxのマージン */
+  padding-left: 20px;  /* 左に20pxのパディング */
+  padding-right: 20px;  /* 右に20pxのパディング */
 }
-.text-h3::first-letter{
+.text-h3::first-letter {
   font-weight: 600;
   padding: 0.3rem;
   border-radius: 0.5rem;
   color: white;
   background-color: #ff9d00;
 }
-.text-h4{
+.text-h4 {
   font-size: 40%;
   padding-left: 100px;
 }
-.border{
-  border: 10px solid #000;
+.delete-button {
+  color: rgb(255, 255, 255);
+  background-color: #000000;
+  border-radius: 25px;
 }
 </style>

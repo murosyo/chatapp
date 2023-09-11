@@ -11,14 +11,12 @@ console.log("データベースに接続完了");
 
 export default (io, socket) => {
   userinfo_db.each("select * from user_info;", (err, row) => {
-    console.log(row['name'], row['password'], row['room']);
-    // console.log(row['password']);
-    // callback({
-    //   name:row['name'],
-    //   password:row['password'],
-    //   room:row['room'],
-    //   data: row
-    // });
+    if(err) {
+      console.error(err);
+      return;
+    }
+    // フロントエンドにデータを送信
+    io.sockets.emit('sendUserInfo', {name: row['name'], password: row['password'], room: row['room']});
   })
 
   // 入室メッセージをクライアントに送信する
@@ -31,14 +29,14 @@ export default (io, socket) => {
         callback({
           status:"SIGN IN"
         });
-        // socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
       else {
         callback({
           status:"SIGN UP"
         });
         userinfo_db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName + "', '" + password + "', '" + room + "');");
-        // socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
     })
 
