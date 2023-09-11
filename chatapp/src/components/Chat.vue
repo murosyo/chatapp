@@ -185,6 +185,14 @@ const deleteChat = (index) => {
 // #region local methods
 // イベント登録をまとめる
 const registerSocketEvent = () => {
+  // sendUserInfoイベントを受け取ったら実行
+  socket.on("sendUserInfo", (data) => {
+    if (!data) {
+      return
+    }
+    // console.log("受け取ったユーザー情報:", data);
+  });
+
   //test
   socket.on("enterEvent", (userName, password, room, callback) => {
     console.log(userName, password, room, callback)
