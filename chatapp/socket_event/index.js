@@ -24,9 +24,9 @@ export default (io, socket) => {
   // 入室メッセージをクライアントに送信する
   socket.on("enterEvent", (userName, password, room, callback) => {
     // console.log(userName, password, room)
-
-    userinfo_db.each("select count(*), name, password, room from user_info where name = '"+ userName + "' AND password = '" + password + "';", (err, row) => {
-    // userinfo_db.each("select * from user_info;", (err, row) => {  
+    userinfo_db.each("select count(*) from user_info where name = '"+ userName + "' AND password = '" + password + "';", (err, row) => {
+      //もしユーザー情報を入力するごとに１になり、されていなければ０とする.
+      //ユーザー情報が正しく１ならログインし、0ならDBに新規にユーザー情報を取得する
       if (row['count(*)'] > 0) {
         callback({
           status:"SIGN IN"
