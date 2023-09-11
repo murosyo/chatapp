@@ -10,8 +10,10 @@ const chatlog_db = new sqlite3.Database(path.join(process.cwd(), 'chatlog.db'));
 console.log("データベースに接続完了");
 
 export default (io, socket) => {
+
+
   userinfo_db.each("select * from user_info;", (err, row) => {
-    // console.log(row['name'], row['password'], row['room'])
+    console.log(row['name'], row['password'], row['room'])
     if(err) {
       console.error(err);
       return;
@@ -49,21 +51,6 @@ export default (io, socket) => {
     socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
 
     // console.log("room："+room)
-    chatlog_db.each("select * from chatlog where room = '" + room + "';", (err, rows) => {
-      if (err){
-        console.error(err);
-        return;
-      }
-      // console.log("name："+rows['name'])
-      // console.log("message："+rows['message'])
-
-      socket.emit("publishEvent", {
-        name: rows['name'],
-        message: rows['message'],
-        room: rows['room'],
-        time: rows['time']
-      });
-    })
 
     // console.log("処理してるよ")
     // chatlog_db.each("select name, message from chatlog where room = '" +room+ "';", (err, rows) => {
@@ -100,5 +87,23 @@ export default (io, socket) => {
   // メモメッセージを自クライアントのみに送信する
   socket.on("memoEvent", (data) => {
     socket.emit("memoEvent", data)
+  })
+
+  socket.on("talkChannel", () => {
+    chatlog_db.each("select * from chatlog WHERE room = 'Chat1';", (err, rows) => {
+      if (err){
+        console.error(err);
+        return;
+      }
+      // console.log("name："+rows['name'])
+      // console.log("message："+rows['message'])
+  
+      socket.emit("publishEvent", {
+        name: rows['name'],
+        message: rows['message'],
+        room: rows['room'],
+        time: rows['time']
+      })
+    })
   })
 }

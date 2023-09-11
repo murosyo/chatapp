@@ -1,5 +1,8 @@
+
 body {
   padding: 2em;
+  background-color: #ffffff;
+  animation: gradient 12s ease infinite;
 }
 
 .button-normal {
@@ -7,4 +10,9 @@ body {
   background-color: #eee;
   border-radius: 4px;
   padding: 4px;
+}
+
+.page { /* このように修正 */
+  /* ...他のスタイル設定... */
+
 }

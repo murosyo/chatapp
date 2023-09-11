@@ -13,8 +13,6 @@ let recognition;
 const userName = inject("userName")
 const password = inject("password")
 const chatRoom = inject("chatRoom")
-// console.log(chatRoom)
-// #endregion
 
 // #region local variable
 const router = useRouter()
@@ -28,35 +26,16 @@ const userList = reactive([])
 const isReversed = ref(false);  // false: 通常順, true: 逆順　メッセージを新しい順、古い順に切り替える機能のため
 // #endregion
 
-// #region lifecycle
+/**
+ * Chat.vueに訪れた際に、発火する関数
+ */
 onMounted(() => {
-  // props: ['userName', 'chatRoom']
-    registerSocketEvent()
-    // socketTest()
-    // console.log({router: this.router});
-    // chatRoom = router.query.chatRoom;
-    // console.log(router.query)
-
-    // const props = defineProps({
-    //   userName: String,
-    //   chatRoom: String
-    // })
+    registerSocketEvent();
+    onTalkChannel(); //onDevChatを使うことで
 })
 
-// const socketTest = () => {
-//   socket.on("enterEvent", (data) => {
-//     if (!data) {
-//       return
-//     }
-//     onReceiveEnter(data)
-//   })
-// }
 
-
-// #endregion
-
-// #region browser event handler
-// 並び替え関数
+// 並び替えをする関数
 const reverseMessages = () => {
   chatList.reverse();
 };
@@ -189,6 +168,13 @@ const onReceiveMemo = (data) => {
   chatList.unshift(`［${data.time}］${data.name}さんのメモ\n${data.message}`)
 }
 
+/**
+ * test
+ */
+ const onTalkChannel = () => {
+  socket.emit("talkChannel")
+}
+
 // 投稿したメッセージを削除
 const deleteChat = (index) => {
   if (confirm("このコメントを削除してもいいですか？")) {
@@ -213,11 +199,6 @@ const registerSocketEvent = () => {
       return
     }
   });
-
-  //test
-  socket.on("enterEvent", (userName, password, room, callback) => {
-    // console.log(userName, password, room, callback)
-  })
 
   // 入室イベントを受け取ったら実行
   socket.on("enterEvent", (data) => {
@@ -313,10 +294,10 @@ TL;TR
 </script>
 
 <template>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3 font-weight-medium">楽々おしゃべり</h1>
-    <p class="text-h4" margin-top="10px">チャットルーム</p>
+  <!-- <meta name="viewport" content="width=device-width,initial-scale=1"> -->
+  <div class="page">
+    <h1 class="text-h3 font-weight-medium">楽々チャット</h1>
+    <p class="text-h4" margin-top="10px">雑談チャンネル</p>
     <div class="mt-10">
       <p>
         ログインユーザ：{{ userName }} さん
@@ -324,40 +305,39 @@ TL;TR
         <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
       </router-link>
       </p>
-      <div class="border">
+      <div class="border-chat">
         <!-- 並び替えボタンの追加 -->
         <p>
-        <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示"
-        }}</button>
-        
-        <button type="button" class="button-normal" @click="onPublish">投稿する</button>
-        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
-        <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">要約</button>
+          <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示" }}</button>
+          <button type="button" class="button-normal" @click="onMemo">メモ</button>
+          <button type="button" class="button-normal" id="gpting" @click="gpting">要約</button>
+          <button type="button" class="button-normal" @click="onSpeak">音声</button>
         </p>
-        <textarea placeholder="投稿文を入力してください" outline="none" rows="4" class="area" v-model.trim="chatContent" v-on:keydown.ctrl.enter="onPublish"></textarea>
+        <textarea placeholder="投稿したいメッセージを入力してください" outline="none" rows="4" class="area" v-model.trim="chatContent" v-on:keydown.ctrl.enter="onPublish"></textarea>
         <button type="button" class="button-normal button-post" @click="onPublish">投稿する</button>
-        <button type="button" class="button-normal button-exit" @click="onSpeak">音声</button>
 
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
-          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">{{ chat }} <span
-              @click="deleteChat(i)" class="button-normal" v-bind:style="{ color: 'black' }">削除</span></li>
+          <li class="item mt-4" v-for="(chat, i) in chatList" :key="i" :style="messageStyle(chatList)">
+            {{ chat }} 
+            <span @click="deleteChat(i)" class="button-normal delete-button">削除</span>
+            <!-- 編集機能は未実装 -->
+            <span class="button-normal edit-button">編集</span> 
+          </li>
         </ul>
       </div>
     </div>
-    <router-link to="/" class="link">
-      <button type="button" class="button-normal button-exit" @click="onExit">退室する</button>
-    </router-link>
   </div>
 </template>
 
 <style scoped>
-.button-normal{
+.button-normal {
   color: #FFF;
-  background-color: #ff9d00;
+  background-color: #008bee;
   font-weight: 600;
   border: none;
+  margin-right: 5px;
 }
 .link {
   text-decoration: none;
@@ -369,9 +349,12 @@ TL;TR
   margin-top: 8px;
 }
 
-.item {
-  display: block;
+.mt-5 {
+  width: 90%;
+  position: relative; /* 相対位置にする */
+  left: 10%; /* 左から10%ずらす */
 }
+
 
 .util-ml-8px {
   margin-left: 8px;
@@ -380,26 +363,60 @@ TL;TR
 .button-exit {
   float: right;
 }
-.button-post{
+.button-post {
   display: block;
   margin-left: auto;
 }
-.border{
-  border: 1px solid #000;
-  margin-top: 10px;
+.border-chat {
+  border: 2px solid #000;
+  border-radius: 10px; 
+  margin-top: 20px; 
+  margin-bottom: 20px;
+  padding-left: 20px; 
+  padding-right: 20px;  
 }
-.text-h3::first-letter{
+.text-h3::first-letter {
   font-weight: 600;
   padding: 0.3rem;
   border-radius: 0.5rem;
   color: white;
   background-color: #ff9d00;
 }
-.text-h4{
+
+.text-h4::first-letter {
+  font-weight: 600;
+  padding: 0.3rem;
+  border-radius: 0.5rem;
+  color: white;
+  background-color: #008bee;
+}
+
+.text-h4 {
   font-size: 40%;
   padding-left: 100px;
 }
-.border{
-  border: 10px solid #000;
+.delete-button, .edit-button {
+  position: absolute;  /* 絶対位置にする */
+  top: 50%;  /* 上下中央に配置 */
+  transform: translateY(-50%);  /* 上下中央からずらす */
 }
+
+.delete-button {
+  left: -50px;  /* item要素の左外側に50px移動 */
+  background-color: #000;
+}
+
+.edit-button {
+  left: -100px;  /* item要素の左外側に100px移動 */
+}
+
+.item {
+  position: relative;
+  display: block;
+  border: 1px solid #000;  
+    border-radius: 5px; 
+    margin: 10px 0;
+    padding: 5px;
+}
+
 </style>
