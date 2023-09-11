@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router"
 import Login from "../components/Login.vue"
 import Chat from "../components/Chat.vue"
+import Dev from "../components/Dev.vue"
+import General from "../components/General.vue"
+import Report from "../components/Report.vue"
+import Emergency from "../components/Emergency.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -25,22 +29,22 @@ const router = createRouter({
     {
       path: "/chat2",
       name: 'Chat2',
-      component: Chat
+      component: Dev,
     },
     {
       path: "/chat3",
       name: 'Chat3',
-      component: Chat
+      component: General
     },
     {
       path: "/chat4",
       name: 'Chat4',
-      component: Chat
+      component: Report
     },
     {
       path: "/chat5",
       name: 'Chat5',
-      component: Chat
+      component: Emergency
     },
   ],
 })

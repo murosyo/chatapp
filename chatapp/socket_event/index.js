@@ -14,14 +14,14 @@ export default (io, socket) => {
 
   userinfo_db.each("select * from user_info;", (err, row) => {
     console.log(row['name'], row['password'], row['room'])
-    if(err) {
+    if (err) {
       console.error(err);
       return;
     }
     // フロントエンドにデータを送信
-    io.sockets.emit('sendUserInfo', {name: row['name'], password: row['password'], room: row['room']});
+    io.sockets.emit('sendUserInfo', { name: row['name'], password: row['password'], room: row['room'] });
   })
-// sendUserInfoイベントを受け取ったら実行
+  // sendUserInfoイベントを受け取ったら実行
   socket.on("sendUserInfo", (data) => {
     if (!data) {
       return
@@ -32,17 +32,17 @@ export default (io, socket) => {
   // 入室メッセージをクライアントに送信する
   socket.on("enterEvent", (userName, password, room, callback) => {
     // console.log(userName, password, room)
-    userinfo_db.each("select count(*) from user_info where name = '"+ userName + "' AND password = '" + password + "';", (err, row) => {
+    userinfo_db.each("select count(*) from user_info where name = '" + userName + "' AND password = '" + password + "';", (err, row) => {
       //もしユーザー情報を入力するごとに１になり、されていなければ０とする.
       //ユーザー情報が正しく１ならログインし、0ならDBに新規にユーザー情報を取得する
       if (row['count(*)'] > 0) {
         callback({
-          status:"SIGN IN"
+          status: "SIGN IN"
         });
       }
       else {
         callback({
-          status:"SIGN UP"
+          status: "SIGN UP"
         });
         userinfo_db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName + "', '" + password + "', '" + room + "');");
       }
@@ -59,13 +59,13 @@ export default (io, socket) => {
     // // userinfo_db.close();
     // // socket.broadcast.emit("enterEvent", data)
   })
-  
+
   // 退室メッセージをクライアントに送信する
   socket.on("exitEvent", (data) => {
     socket.broadcast.emit("exitEvent", data)
   })
 
-  
+
   // 投稿メッセージを送信する
   socket.on("publishEvent", (data) => {
     io.sockets.emit("publishEvent", data)
@@ -89,15 +89,14 @@ export default (io, socket) => {
     socket.emit("memoEvent", data)
   })
 
+  //雑談
   socket.on("talkChannel", () => {
     chatlog_db.each("select * from chatlog WHERE room = 'Chat1';", (err, rows) => {
-      if (err){
+      if (err) {
         console.error(err);
         return;
       }
-      // console.log("name："+rows['name'])
-      // console.log("message："+rows['message'])
-  
+
       socket.emit("publishEvent", {
         name: rows['name'],
         message: rows['message'],
@@ -106,4 +105,72 @@ export default (io, socket) => {
       })
     })
   })
+
+  //開発
+  socket.on("devChannel", () => {
+    chatlog_db.each("select * from chatlog WHERE room = 'Chat2';", (err, rows) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      socket.emit("publishEvent", {
+        name: rows['name'],
+        message: rows['message'],
+        room: rows['room'],
+        time: rows['time']
+      })
+    })
+  })
+
+  //全体
+  socket.on("generalChannel", () => {
+    chatlog_db.each("select * from chatlog WHERE room = 'Chat3';", (err, rows) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      socket.emit("publishEvent", {
+        name: rows['name'],
+        message: rows['message'],
+        room: rows['room'],
+        time: rows['time']
+      })
+    })
+  })
+
+  //日報
+  socket.on("reportChannel", () => {
+    chatlog_db.each("select * from chatlog WHERE room = 'Chat4';", (err, rows) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      socket.emit("publishEvent", {
+        name: rows['name'],
+        message: rows['message'],
+        room: rows['room'],
+        time: rows['time']
+      })
+    })
+  })
+
+    //緊急
+    socket.on("emergencyChannel", () => {
+      chatlog_db.each("select * from chatlog WHERE room = 'Chat5';", (err, rows) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+  
+        socket.emit("publishEvent", {
+          name: rows['name'],
+          message: rows['message'],
+          room: rows['room'],
+          time: rows['time']
+        })
+      })
+    })
 }
