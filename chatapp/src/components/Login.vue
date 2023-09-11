@@ -229,7 +229,11 @@ const checkPassword = () => {
 }
 
 .text-h3::first-letter{
-  color: rgb(253,154,5);
+  font-weight: 600;
+  padding: 0.3rem;
+  border-radius: 0.5rem;
+  color: white;
+  background-color: #ff9d00;
 }
 
 .text-h3 {
@@ -242,5 +246,4 @@ const checkPassword = () => {
   font-family: 'Georgia', serif;
   /* 既存のスタイルはそのまま */
 }
-
 </style>
