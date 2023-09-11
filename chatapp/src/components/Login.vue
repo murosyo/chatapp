@@ -2,7 +2,29 @@
 import { inject, reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import io from "socket.io-client"
-// import sqlite3 from 'sqlite3'
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { db, auth } from "../main.js";
+console.log(db);
+// console.log(db.collection)
+
+const fetchedMessages = ref([]); // 取得したメッセージを保存するためのVueのref
+
+const fetchMessagesFromFirestore = async () => {
+  try {
+    const querySnapshot = await db.collection("messages").get();
+    const messages = [];
+    querySnapshot.forEach((doc) => {
+      messages.push(doc.data());
+    });
+    fetchedMessages.value = messages;
+    console.log("Fetched messages: ", fetchedMessages.value);
+  } catch (error) {
+    console.error("Error fetching messages: ", error);
+  }
+};
+
+fetchMessagesFromFirestore()
+
 
 // #region global state
 const userName = inject("userName")
@@ -19,12 +41,25 @@ const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
 
-// #region browser event handler
-const Info = () => {
-  userName.value = inputUserName.value;
-  password.value = inputPassWord.value;
-  chatRoom.value = chatRoom.value;
-}
+
+/**
+ * Googleアカウントを使ったログイン関数
+ */
+ const onLogin = async () => {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    if (user) {
+      alert("Googleアカウントでログインしました！");
+      userName.value = user.displayName;
+      console.log(userName.value)
+      // その他の処理
+    }
+  } catch (error) {
+    alert("ログインに失敗しました。" + error.message);
+  }
+};
 
 // 入室メッセージをクライアントに送信する
 const onEnter = () => {
@@ -80,6 +115,7 @@ const checkPassword = () => {
       <table>
       <tr><th>ユーザー名</th><td><input type="text" class="user-name-text" v-model="inputUserName" /></td><td></td></tr>
       <tr><th>パスワード</th><td><input type="password" id="password" class="user-name-text" v-model="inputPassWord" /></td><td><button id="passbtn" @click="checkPassword" class="button-1">パスワード表示</button><br></td></tr>
+      <button type="button" @click="onLogin" class="button-2">Googleでログイン</button>
       <tr><th>チャットルーム</th><td>
       <select id="chatRoom" class="chatroom-list" v-model="chatRoom">
         <option disabled value="">選択してください↓</option>

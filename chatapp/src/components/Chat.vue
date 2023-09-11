@@ -279,9 +279,9 @@ TL;TR
         <button type="button" class="button-normal" @click="toggleOrder">{{ isReversed ? "新しいもの順に表示" : "古いもの順に表示"
         }}</button>
         <button type="button" class="button-normal" @click="onPublish">投稿する</button>
-        <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
-        <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">要約</button>
-        <button type="button" class="button-normal button-exit" @click="onSpeak">音声</button>
+        <button class="button-normal" @click="onMemo">メモ</button>
+        <button type="button" class="button-normal" id="gpting" @click="gpting">要約</button>
+        <button type="button" class="button-normal" @click="onSpeak">音声</button>
       </div>
       <div class="mt-5" v-if="chatList.length !== 0">
         <ul>
@@ -313,6 +313,14 @@ TL;TR
 
 .util-ml-8px {
   margin-left: 8px;
+}
+
+.button-normal {
+  border: 1px solid #000;
+  color: rgb(0, 0, 0);
+  padding: 5px;
+  border-radius: 50px;
+  cursor: pointer;
 }
 
 .button-exit {
