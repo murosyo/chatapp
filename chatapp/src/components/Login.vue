@@ -31,10 +31,10 @@ const onEnter = () => {
     // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
     socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value, (response) => {
       console.log(response.status);
-      console.log(response.name);
-      console.log(response.password);
-      console.log(response.room);
-      console.log(response.data);
+      // console.log(response.name);
+      // console.log(response.password);
+      // console.log(response.room);
+      // console.log(response.data);
       if(response.status === "SIGN IN"){
         alert('サインインに成功しました！');
         userName.value = inputUserName.value;

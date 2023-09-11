@@ -185,6 +185,14 @@ const deleteChat = (index) => {
 // #region local methods
 // イベント登録をまとめる
 const registerSocketEvent = () => {
+  // sendUserInfoイベントを受け取ったら実行
+  socket.on("sendUserInfo", (data) => {
+    if (!data) {
+      return
+    }
+    // console.log("受け取ったユーザー情報:", data);
+  });
+
   //test
   socket.on("enterEvent", (userName, password, room, callback) => {
     console.log(userName, password, room, callback)
@@ -305,7 +313,7 @@ TL;TR
         <button class="button-normal util-ml-8px" @click="onMemo">メモ</button>
         <button type="button" class="button-normal button-exit" id="gpting" @click="gpting">要約</button>
         </p>
-        <textarea placeholder="投稿文を入力してください" outline="none" rows="4" class="area" v-model="chatContent" v-on:keydown.enter="onPublish"></textarea>
+        <textarea placeholder="投稿文を入力してください" outline="none" rows="4" class="area" v-model.trim="chatContent" v-on:keydown.ctrl.enter="onPublish"></textarea>
         <button type="button" class="button-normal button-post" @click="onPublish">投稿する</button>
         <button type="button" class="button-normal button-exit" @click="onSpeak">音声</button>
 
