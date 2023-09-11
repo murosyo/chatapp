@@ -19,12 +19,6 @@ const inputUserName = ref("")
 const inputPassWord = ref("")
 const chatRoom = ref("")
 
-// #region browser event handler
-const Info = () => {
-  userName.value = inputUserName.value;
-  password.value = inputPassWord.value;
-  chatRoom.value = chatRoom.value;
-}
 
 // 入室メッセージをクライアントに送信する
 const onEnter = () => {
@@ -37,6 +31,10 @@ const onEnter = () => {
     // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
     socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value, (response) => {
       console.log(response.status);
+      console.log(response.name);
+      console.log(response.password);
+      console.log(response.room);
+      console.log(response.data);
       if(response.status === "SIGN IN"){
         alert('サインインに成功しました！');
         userName.value = inputUserName.value;
@@ -74,8 +72,8 @@ const checkPassword = () => {
 
 <template>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <div class="mx-auto my-5 px-4">
-    <h1 class="text-h3">Vue.js Chat</h1>
+  <div class="page">
+    <h1 class="text-h3">楽々チャット</h1>
     <div class="mt-10">
       <table>
       <tr><th>ユーザー名</th><td><input type="text" class="user-name-text" v-model="inputUserName" /></td><td></td></tr>
@@ -99,11 +97,22 @@ const checkPassword = () => {
 
 <style scoped>
 
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  margin: 0 auto;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+}
 
 .user-name-text {
   width: 200px;
   border: 1px solid #888;
   vertical-align: middle;
+  margin-top: 5px;
 }
 
 .chatroom-list {
@@ -157,41 +166,69 @@ const checkPassword = () => {
 }
 
 .mt-10{
-  width: 80%;
-  margin:0 auto;
+  margin: 0 auto;
+  width: fit-content;
 }
 
 .mt-10 th{
   text-align: left;
-  width: 25%;
+  width: 30%;
+
 }
 .mt-10 td{
-  width: 35%;
+  width: 50%;
+}
+.mt-10 table {
+  border-collapse: separate;
+  border-spacing: 0 15px;
 }
 
-.button-2{
-  border-radius: 3px;
-    position: relative;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin: 0 auto;
-    max-width: 220px;
-    padding: 10px 25px;
-    color: #FFF;
-    transition: 0.3s ease-in-out;
-    font-weight: 600;
-    background: rgb(149,202,252);
-    background: linear-gradient(270deg, rgba(149,202,252,1) 0%, rgba(107,182,255,1) 100%);
+.button-2 {
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 2rem;
+  font-size: 1.2rem;
+  background-color: rgb(253,154,5); /* 色を変更 */
+  text-shadow: 1px 1px 0 #df922d, -1px -1px 0 #df9d33;
+  box-shadow: 0 10px 0 0 #a47943;
+  color: rgb(251, 251, 251);
+  font-weight: bold;
+  border: 1px solid #7d7d7a;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
-.button-2{
-  background: rgb(117,188,255);
-  background: linear-gradient(270deg, rgba(117,188,255,1) 0%, rgba(62,159,252,1) 100%);
+.button-2:hover {
+  background-color: rgb(253,154,5); /* ホバー時の色を変更 */
+  text-shadow: 1px 1px 0 #daa344, -1px -1px 0 #e0a031;
+  transform: translateY(10px);
+  box-shadow: none;
+}
+
+.button-1{
+  font-weight: 600;
+  color: #FFF;
+  background-color: #e59a29;
+  border-radius: 10px;
 }
 
 .text-h3::first-letter{
-  color: rgba(62,159,252,1);
+  color: rgb(253,154,5);
+}
+
+.text-h3 {
+  text-align: center;
+  /* 既存のスタイルがあればここに */
+  /* ... */
+}
+
+.text-h3 {
+  font-family: 'Georgia', serif;
+  /* 既存のスタイルはそのまま */
 }
 
 </style>
