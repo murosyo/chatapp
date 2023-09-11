@@ -2,6 +2,7 @@
 import { inject, ref, reactive, onMounted } from "vue"
 import io from "socket.io-client"
 import axios from 'axios';
+import { useRouter } from "vue-router"
 
 //グローバル変数
 const GPT_API = import.meta.env.VITE_TEST
@@ -11,9 +12,12 @@ let recognition;
 // #region global state
 const userName = inject("userName")
 const password = inject("password")
+const chatRoom = inject("chatRoom")
+// console.log(chatRoom)
 // #endregion
 
 // #region local variable
+const router = useRouter()
 const socket = io()
 // #endregion
 
@@ -26,19 +30,27 @@ const isReversed = ref(false);  // false: 通常順, true: 逆順　メッセー
 
 // #region lifecycle
 onMounted(() => {
-  props: ['userName'],
+  // props: ['userName', 'chatRoom']
     registerSocketEvent()
-    socketTest()
+    // socketTest()
+    // console.log({router: this.router});
+    // chatRoom = router.query.chatRoom;
+    // console.log(router.query)
+
+    // const props = defineProps({
+    //   userName: String,
+    //   chatRoom: String
+    // })
 })
 
-const socketTest = () => {
-  socket.on("enterEvent", (data) => {
-    if (!data) {
-      return
-    }
-    onReceiveEnter(data)
-  })
-}
+// const socketTest = () => {
+//   socket.on("enterEvent", (data) => {
+//     if (!data) {
+//       return
+//     }
+//     onReceiveEnter(data)
+//   })
+// }
 
 
 // #endregion
@@ -71,6 +83,8 @@ const messageStyle = (data) => {
 
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
+  // console.log("userName："+userName.value+", chatRoom："+chatRoom.value)
+
   if (recognition) {
     recognition.stop();  // 音声認識を停止
   }
@@ -84,8 +98,9 @@ const onPublish = () => {
   const dayOfWeekStr = ["日", "月", "火", "水", "木", "金", "土"][dayOfWeek];
 
   socket.emit("publishEvent", {
-    user: userName.value,
+    name: userName.value,
     message: chatContent.value,
+    room: chatRoom.value,
     time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"
   })
   chatContent.value = null;  // Clear the chat input
@@ -127,7 +142,6 @@ const onExit = () => {
   }
 };
 
-
 // メモを画面上に表示する
 const onMemo = () => {
   if (recognition) {
@@ -144,8 +158,9 @@ const onMemo = () => {
   const dayOfWeekStr = ["日", "月", "火", "水", "木", "金", "土"][dayOfWeek];
 
   socket.emit("memoEvent", {
-    user: userName.value,
+    name: userName.value,
     message: chatContent.value,
+    room: chatRoom.value,
     time: today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + "/" + dayOfWeekStr + "/" + today.getHours() + "時" + today.getMinutes() + "分" + today.getSeconds() + "秒"
   })
   // 入力欄を初期化
@@ -166,12 +181,12 @@ const onReceiveExit = (data) => {
 
 // サーバから受信した投稿メッセージを画面上に表示する
 const onReceivePublish = (data) => {
-  chatList.unshift(`［${data.time}］${data.user}さん\n${data.message}`)
+  chatList.unshift(`［${data.time}］${data.name}さん\n${data.message}`)
 }
 
 // サーバから受信したメモメッセージを画面上に表示する
 const onReceiveMemo = (data) => {
-  chatList.unshift(`［${data.time}］${data.user}さんのメモ\n${data.message}`)
+  chatList.unshift(`［${data.time}］${data.name}さんのメモ\n${data.message}`)
 }
 
 // 投稿したメッセージを削除
@@ -193,9 +208,15 @@ const registerSocketEvent = () => {
     // console.log("受け取ったユーザー情報:", data);
   });
 
+  socket.on("sendChatLog", (data) => {
+    if (!data){
+      return
+    }
+  });
+
   //test
   socket.on("enterEvent", (userName, password, room, callback) => {
-    console.log(userName, password, room, callback)
+    // console.log(userName, password, room, callback)
   })
 
   // 入室イベントを受け取ったら実行
