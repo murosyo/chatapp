@@ -18,16 +18,29 @@ export default (io, socket) => {
         callback({
           status:"SIGN IN"
         });
+        userinfo_db.each("select name, password from user_info;", (err, row) => {
+          console.log(row['name'])
+          callback({
+            status:"OK"
+          });
+        })
         socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
       else {
         callback({
           status:"SIGN UP"
         });
+        userinfo_db.each("select name, password from user_info;", (err, row) => {
+          console.log(row['name'])
+          callback({
+            status:"OK"
+          });
+        })
         userinfo_db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName + "', '" + password + "', '" + room + "');");
         socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
-    })
+    }
+    )
     // userinfo_db.close();
     // socket.broadcast.emit("enterEvent", data)
   })
