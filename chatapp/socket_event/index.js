@@ -52,9 +52,19 @@ export default (io, socket) => {
     socket.broadcast.emit("exitEvent", data)
   })
 
+  
   // 投稿メッセージを送信する
   socket.on("publishEvent", (data) => {
     io.sockets.emit("publishEvent", data)
+
+    //追加
+    //投稿メッセージをデータベースに保存
+    const { name, message, room } = data
+    chatlog_db.run("INSERT INTO chatlog (name, message, room) VALUES (?, ?, ?)", [name, message, room], (err) => {
+      if (err) {
+        console.error("メッセージの保存中にエラーが発生しました:", err.message)
+      }
+    })
   })
 
   // メモメッセージを自クライアントのみに送信する
