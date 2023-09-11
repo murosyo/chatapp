@@ -29,14 +29,14 @@ export default (io, socket) => {
         callback({
           status:"SIGN IN"
         });
-        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+        //socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
       else {
         callback({
           status:"SIGN UP"
         });
         userinfo_db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName + "', '" + password + "', '" + room + "');");
-        socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+        //socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
     })
 
