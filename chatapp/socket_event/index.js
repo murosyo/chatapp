@@ -4,14 +4,16 @@ import path from 'node:path';
 console.log("データベースに接続開始");
 // chatapp/userinfo.dbを開く
 const userinfo_db = new sqlite3.Database(path.join(process.cwd(), 'userinfo.db'));
-console.log(process.cwd());
+// console.log(process.cwd());
 // chatapp/chatlog.dbを開く
 const chatlog_db = new sqlite3.Database(path.join(process.cwd(), 'chatlog.db'));
 console.log("データベースに接続完了");
 
+const datalist = [];
+
 export default (io, socket) => {
   userinfo_db.each("select * from user_info;", (err, row) => {
-    console.log(row['name'], row['password'], row['room'])
+    // console.log(row['name'], row['password'], row['room'])
     if(err) {
       console.error(err);
       return;
@@ -24,7 +26,7 @@ export default (io, socket) => {
     if (!data) {
       return
     }
-    console.log("受け取ったユーザー情報:", data);
+    // console.log("受け取ったユーザー情報:", data);
   });
 
   // 入室メッセージをクライアントに送信する
@@ -47,6 +49,17 @@ export default (io, socket) => {
     })
 
     socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
+
+    // console.log("処理してるよ")
+    // chatlog_db.each("select name, message from chatlog where room = '" +room+ "';", (err, rows) => {
+    //   datalist.push({
+    //     name: name,
+    //     message: message,
+    //     room: room,
+    //     time: time
+    //   })
+    //   console.log(datalist)
+    // })
     // userinfo_db.close();
     // socket.broadcast.emit("enterEvent", data)
   })
@@ -63,7 +76,11 @@ export default (io, socket) => {
 
     //追加
     //投稿メッセージをデータベースに保存
-    const { name, message, room } = data
+    const { name, message, room, time } = data
+    console.log(name)
+    console.log(message)
+    console.log(room)
+    console.log(time)
     chatlog_db.run("INSERT INTO chatlog (name, message, room) VALUES (?, ?, ?)", [name, message, room], (err) => {
       if (err) {
         console.error("メッセージの保存中にエラーが発生しました:", err.message)

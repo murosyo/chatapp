@@ -13,12 +13,14 @@ const router = createRouter({
     {
       path: "/chat",
       name: 'Chat',
-      component: Chat
+      component: Chat,
+      // props:true
     },
     {
       path: "/chat1",
       name: 'Chat1',
-      component: Chat
+      component: Chat,
+      props:true
     },
     {
       path: "/chat2",

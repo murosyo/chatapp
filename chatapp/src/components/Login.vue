@@ -7,6 +7,7 @@ import io from "socket.io-client"
 // #region global state
 const userName = inject("userName")
 const password = inject("password")
+const chatRoom = inject("chatRoom")
 // #endregion
 
 // #region local variable
@@ -17,19 +18,25 @@ const socket = io()
 // #region reactive variable
 const inputUserName = ref("")
 const inputPassWord = ref("")
-const chatRoom = ref("")
-
+const inputChatRoom = ref("")
 
 // 入室メッセージをクライアントに送信する
 const onEnter = () => {
   // ユーザー名が入力されているかチェック
-  if (inputUserName.value.trim() === '') {
+  if (inputUserName.value === '') {
     alert('ユーザ名を入力してください。')
+  }
+  // パスワードが入力されているかチェック
+  else if (inputPassWord.value === '') {
+    alert('パスワードを入力してください。')
+  }
+  else if (inputChatRoom.value === ''){
+    alert('ルームを選択してください。')
   }
   else {
     // 入室メッセージを送信
     // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
-    socket.emit('enterEvent', inputUserName.value, inputPassWord.value, chatRoom.value, (response) => {
+    socket.emit('enterEvent', inputUserName.value, inputPassWord.value, inputChatRoom.value, (response) => {
       console.log(response.status);
       // console.log(response.name);
       // console.log(response.password);
@@ -38,14 +45,17 @@ const onEnter = () => {
       if(response.status === "SIGN IN"){
         alert('サインインに成功しました！');
         userName.value = inputUserName.value;
+        chatRoom.value = inputChatRoom.value;
         const path = document.getElementById('chatRoom').value;
-        router.push({ name: `${path}` })
+        // console.log(path)
+        router.push({ name: `${path}`, props: { userName: userName.value, chatRoom: chatRoom.value }})
       }
       else if(response.status === "SIGN UP"){
         alert('サインアップに成功しました！');
         userName.value = inputUserName.value;
         const path = document.getElementById('chatRoom').value;
-        router.push({ name: `${path}` })
+        // console.log(path)
+        router.push({ name: `${path}` , props: { userName: userName.value, chatRoom: chatRoom.value }})
       }
       else{
         alert('そのユーザ名は既に使用されています。他のユーザ名でログインしてください。');
@@ -76,10 +86,10 @@ const checkPassword = () => {
     <h1 class="text-h3">楽楽チャット</h1>
     <div class="mt-10">
       <table>
-      <tr><th>ユーザー名</th><td><input type="text" class="user-name-text" v-model="inputUserName" /></td><td></td></tr>
-      <tr><th>パスワード</th><td><input type="password" id="password" class="user-name-text" v-model="inputPassWord" /></td><td><button id="passbtn" @click="checkPassword" class="button-1">パスワード表示</button><br></td></tr>
+      <tr><th>ユーザー名</th><td><input type="text" class="user-name-text" v-model.trim="inputUserName" :userName="inputUserName"/></td><td></td></tr>
+      <tr><th>パスワード</th><td><input type="password" id="password" class="user-name-text" v-model.trim="inputPassWord" /></td><td><button id="passbtn" @click="checkPassword" class="button-1">パスワード表示</button><br></td></tr>
       <tr><th>チャットルーム</th><td>
-      <select id="chatRoom" class="chatroom-list" v-model="chatRoom">
+      <select id="chatRoom" class="chatroom-list" v-model.trim="inputChatRoom" :chatRoom="inputChatRoom">
         <option disabled value="">選択してください↓</option>
         <option value="Chat1">Chat1</option>
         <option value="Chat2">Chat2</option>
