@@ -72,8 +72,8 @@ const checkPassword = () => {
 
 <template>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <div class="page">
-    <h1 class="text-h3">楽々チャット</h1>
+  <div class="page .App">
+    <h1 class="text-h3">楽楽チャット</h1>
     <div class="mt-10">
       <table>
       <tr><th>ユーザー名</th><td><input type="text" class="user-name-text" v-model="inputUserName" /></td><td></td></tr>
@@ -96,7 +96,17 @@ const checkPassword = () => {
 </template>
 
 <style scoped>
-
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 75% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
 .page {
   display: flex;
   flex-direction: column;
@@ -105,14 +115,20 @@ const checkPassword = () => {
   min-height: 50vh;
   margin: 0 auto;
   background-color: #ffffff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
-}
+  border: 10px solid rgb(253,154,5); /* 枠を追加 */
+  border-radius: 10px; /* 角を丸くする */
 
+  /* アニメーション */
+  background: linear-gradient(250.6deg, #ffffff 7.3%, rgb(216, 215, 215) 98.63%); /* この行を追加 */
+  background-size: 400% 400%; /* この行を追加 */
+  animation: gradient 12s ease infinite; /* この行を追加 */
+}
 .user-name-text {
   width: 200px;
-  border: 1px solid #888;
+  border: 1px solid #b9b8b8;
   vertical-align: middle;
   margin-top: 5px;
+  border: 2px solid rgb(18, 18, 18); /* 枠を追加 */
 }
 
 .chatroom-list {
@@ -217,7 +233,11 @@ const checkPassword = () => {
 }
 
 .text-h3::first-letter{
-  color: rgb(253,154,5);
+  font-weight: 600;
+  padding: 0.3rem;
+  border-radius: 0.5rem;
+  color: white;
+  background-color: #ff9d00;
 }
 
 .text-h3 {
@@ -230,5 +250,4 @@ const checkPassword = () => {
   font-family: 'Georgia', serif;
   /* 既存のスタイルはそのまま */
 }
-
 </style>
