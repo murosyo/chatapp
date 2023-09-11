@@ -18,6 +18,13 @@ export default (io, socket) => {
     // フロントエンドにデータを送信
     io.sockets.emit('sendUserInfo', {name: row['name'], password: row['password'], room: row['room']});
   })
+// sendUserInfoイベントを受け取ったら実行
+  socket.on("sendUserInfo", (data) => {
+    if (!data) {
+      return
+    }
+    console.log("受け取ったユーザー情報:", data);
+  });
 
   // 入室メッセージをクライアントに送信する
   socket.on("enterEvent", (userName, password, room, callback) => {
