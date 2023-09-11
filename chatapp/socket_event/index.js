@@ -29,21 +29,13 @@ export default (io, socket) => {
     // userinfo_db.each("select * from user_info;", (err, row) => {  
       if (row['count(*)'] > 0) {
         callback({
-          status:"SIGN IN",
-          name:row['name'],
-          password:row['password'],
-          room:row['room'],
-          data: row
+          status:"SIGN IN"
         });
         // socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
       }
       else {
         callback({
-          status:"SIGN UP",
-          name:row['name'],
-          password:row['password'],
-          room:row['room'],
-          data: row
+          status:"SIGN UP"
         });
         userinfo_db.run("INSERT INTO user_info(name, password, room) VALUES('" + userName + "', '" + password + "', '" + room + "');");
         // socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
