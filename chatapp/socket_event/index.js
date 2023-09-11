@@ -9,8 +9,6 @@ const userinfo_db = new sqlite3.Database(path.join(process.cwd(), 'userinfo.db')
 const chatlog_db = new sqlite3.Database(path.join(process.cwd(), 'chatlog.db'));
 console.log("データベースに接続完了");
 
-const datalist = [];
-
 export default (io, socket) => {
   userinfo_db.each("select * from user_info;", (err, row) => {
     // console.log(row['name'], row['password'], row['room'])
@@ -50,18 +48,29 @@ export default (io, socket) => {
 
     socket.broadcast.emit("enterEvent", userName + "さんが" + room + "に入室しました。")
 
+    // console.log("room："+room)
+    chatlog_db.each("select * from chatlog where room = '" + room + "';", (err, rows) => {
+      if (err){
+        console.error(err);
+        return;
+      }
+      // console.log("name："+rows['name'])
+      // console.log("message："+rows['message'])
+
+      socket.emit("publishEvent", {
+        name: rows['name'],
+        message: rows['message'],
+        room: rows['room'],
+        time: rows['time']
+      });
+    })
+
     // console.log("処理してるよ")
     // chatlog_db.each("select name, message from chatlog where room = '" +room+ "';", (err, rows) => {
-    //   datalist.push({
-    //     name: name,
-    //     message: message,
-    //     room: room,
-    //     time: time
-    //   })
-    //   console.log(datalist)
+    //   // io.sockets.emit("publishEvent", data)
     // })
-    // userinfo_db.close();
-    // socket.broadcast.emit("enterEvent", data)
+    // // userinfo_db.close();
+    // // socket.broadcast.emit("enterEvent", data)
   })
   
   // 退室メッセージをクライアントに送信する
@@ -77,11 +86,11 @@ export default (io, socket) => {
     //追加
     //投稿メッセージをデータベースに保存
     const { name, message, room, time } = data
-    console.log(name)
-    console.log(message)
-    console.log(room)
-    console.log(time)
-    chatlog_db.run("INSERT INTO chatlog (name, message, room) VALUES (?, ?, ?)", [name, message, room], (err) => {
+    // console.log(name)
+    // console.log(message)
+    // console.log(room)
+    // console.log(time)
+    chatlog_db.run("INSERT INTO chatlog (name, message, room, time) VALUES (?, ?, ?, ?)", [name, message, room, time], (err) => {
       if (err) {
         console.error("メッセージの保存中にエラーが発生しました:", err.message)
       }
