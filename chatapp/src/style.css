@@ -1,5 +1,8 @@
+
 body {
   padding: 2em;
+  background-color: #ffffff;
+  animation: gradient 12s ease infinite;
 }
 
 .button-normal {

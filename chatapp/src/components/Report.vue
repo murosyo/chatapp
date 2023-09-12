@@ -14,25 +14,29 @@ const userName = inject("userName")
 const password = inject("password")
 const chatRoom = inject("chatRoom")
 
-// #region local variable
 const router = useRouter()
 const socket = io()
-// #endregion
 
-// #region reactive variable
 const chatContent = ref("")
 const chatList = reactive([])
 const userList = reactive([])
 const isReversed = ref(false);  // false: 通常順, true: 逆順　メッセージを新しい順、古い順に切り替える機能のため
-// #endregion
 
 /**
  * Chat.vueに訪れた際に、発火する関数
  */
 onMounted(() => {
     registerSocketEvent();
-    onTalkChannel(); //onDevChatを使うことで
+    onReportChannel(); //onDevChatを使うことで
 })
+
+/**
+ * devチャンネルのDBを取得する
+ */
+ const onReportChannel = () => {
+  socket.emit("reportChannel")
+}
+
 
 
 // 並び替えをする関数
@@ -48,21 +52,11 @@ const toggleOrder = () => {
 
 // メッセージのスタイルを設定する関数
 const messageStyle = (data) => {
-  // if (userName.value === currentUser) {
-  //   return {
-  //     color: "red",
-  //     'white-space': 'pre-line'
-  //   }
-  // }
-  // else {
-  //   return {'white-space': 'pre-line'}
-  // }
   return {'white-space': 'pre-line'}
 }
 
 // 投稿メッセージをサーバに送信する
 const onPublish = () => {
-  // console.log("userName："+userName.value+", chatRoom："+chatRoom.value)
 
   if (recognition) {
     recognition.stop();  // 音声認識を停止
@@ -145,7 +139,6 @@ const onMemo = () => {
   // 入力欄を初期化
   chatContent.value = null;
 }
-// #endregion
 
 // #region socket event handler
 // サーバから受信した入室メッセージ画面上に表示する
@@ -166,13 +159,6 @@ const onReceivePublish = (data) => {
 // サーバから受信したメモメッセージを画面上に表示する
 const onReceiveMemo = (data) => {
   chatList.unshift(`［${data.time}］${data.name}さんのメモ\n${data.message}`)
-}
-
-/**
- * test
- */
- const onTalkChannel = () => {
-  socket.emit("talkChannel")
 }
 
 // 投稿したメッセージを削除
@@ -297,7 +283,7 @@ TL;TR
   <!-- <meta name="viewport" content="width=device-width,initial-scale=1"> -->
   <div class="page">
     <h1 class="text-h3 font-weight-medium">楽々チャット</h1>
-    <p class="text-h4" margin-top="10px">雑談チャンネル</p>
+    <p class="text-h4" margin-top="10px">日報チャンネル</p>
     <div class="mt-10">
       <p>
         ログインユーザ：{{ userName }} さん
@@ -334,7 +320,7 @@ TL;TR
 <style scoped>
 .button-normal {
   color: #FFF;
-  background-color: #008bee;
+  background-color: #0007d0;
   font-weight: 600;
   border: none;
   margin-right: 5px;
@@ -388,7 +374,7 @@ TL;TR
   padding: 0.3rem;
   border-radius: 0.5rem;
   color: white;
-  background-color: #008bee;
+  background-color: #0007d0;
 }
 
 .text-h4 {

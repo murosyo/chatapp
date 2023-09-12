@@ -38,10 +38,6 @@ const onEnter = () => {
     // socket.emit('enterEvent', inputUserName.value + "さんが入室しました。");
     socket.emit('enterEvent', inputUserName.value, inputPassWord.value, inputChatRoom.value, (response) => {
       console.log(response.status);
-      // console.log(response.name);
-      // console.log(response.password);
-      // console.log(response.room);
-      // console.log(response.data);
       if(response.status === "SIGN IN"){
         alert('サインインに成功しました！');
         userName.value = inputUserName.value;
@@ -91,11 +87,11 @@ const checkPassword = () => {
       <tr><th>チャットルーム</th><td>
       <select id="chatRoom" class="chatroom-list" v-model.trim="inputChatRoom" :chatRoom="inputChatRoom">
         <option disabled value="">選択してください↓</option>
-        <option value="Chat1">Chat1</option>
-        <option value="Chat2">Chat2</option>
-        <option value="Chat3">Chat3</option>
-        <option value="Chat4">Chat4</option>
-        <option value="Chat5">Chat5</option>
+        <option value="Chat1">雑談チャンネル</option>
+        <option value="Chat2">開発チャンネル</option>
+        <option value="Chat3">全体チャンネル</option>
+        <option value="Chat4">日報チャンネル</option>
+        <option value="Chat5">緊急連絡</option>
       </select>
       </td><td></td>
       </tr>
